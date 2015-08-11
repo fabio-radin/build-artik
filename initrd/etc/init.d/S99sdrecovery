@@ -1,0 +1,22 @@
+#!/bin/sh
+#
+# Start the sdcard recovery....
+#
+
+case "$1" in
+start)
+echo "Starting network..."
+/sbin/sd_recovery.sh
+;;
+stop)
+;;
+restart|reload)
+"$0" stop
+"$0" start
+;;
+*)
+echo "Usage: $0 {start|stop|restart}"
+exit 1
+esac
+
+exit $?

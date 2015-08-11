@@ -6,8 +6,9 @@ export RELEASE_DATE=`date +"%Y%m%d.%H%M%S"`
 TARGET_DIR_BACKUP=$TARGET_DIR
 export TARGET_DIR=$TARGET_DIR/$RELEASE_DATE
 
-mkdir -p $TARGET_DIR
+sudo ls > /dev/null 2>&1
 
+mkdir -p $TARGET_DIR
 cat > $TARGET_DIR/artik_release  << __EOF__
 RELEASE_VERSION=${RELEASE_VER}
 RELEASE_DATE=${RELEASE_DATE}
@@ -18,7 +19,6 @@ __EOF__
 
 ./mkuInitrd.sh
 ./mksdboot.sh
-./mkemmcboot.sh
 ./mkbootimg.sh
 ./release_rootfs.sh
 

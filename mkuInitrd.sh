@@ -11,11 +11,7 @@ test -d $TMP_DIR/mnt || mkdir -p $TMP_DIR/mnt
 
 cp $PREBUILT_DIR/$INITRD_RAW $TMP_DIR/
 sudo mount -o loop $TMP_DIR/$INITRD_RAW $TMP_DIR/mnt
-sudo cp initrd/inittab $TMP_DIR/mnt/etc
-sudo cp initrd/*.sh $TMP_DIR/mnt/sbin
-pushd $TMP_DIR/mnt/etc/init.d
-sudo ln -sf ../../sbin/sd_recovery.sh S99sd_recovery
-popd
+sudo cp -rf initrd/* $TMP_DIR/mnt/
 sync
 sudo umount $TMP_DIR/mnt
 gzip -c $TMP_DIR/$INITRD_RAW > $TMP_DIR/${INITRD_RAW}.gz
