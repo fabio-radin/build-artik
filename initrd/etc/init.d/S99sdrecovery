@@ -5,7 +5,7 @@
 
 case "$1" in
 start)
-echo "Starting network..."
+echo "Starting recovery..."
 /sbin/sd_recovery.sh
 ;;
 stop)
