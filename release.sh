@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -x
-
 export RELEASE_DATE=`date +"%Y%m%d.%H%M%S"`
 TARGET_DIR_BACKUP=$TARGET_DIR
 export TARGET_DIR=$TARGET_DIR/$RELEASE_DATE
@@ -25,5 +23,8 @@ __EOF__
 ./mksdfuse.sh
 
 ls -al $TARGET_DIR
+
+echo "ARTIK release information"
+cat $TARGET_DIR/artik_release
 
 export TARGET_DIR=$TARGET_DIR_BACKUP
