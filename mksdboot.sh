@@ -6,8 +6,8 @@ set -e
 SD_BOOT_SZ=`expr $ENV_OFFSET + 32`
 
 test -e $PREBUILT_DIR/$TARGET_BOARD/bl1.bin || exit 0
+test -e $PREBUILT_DIR/$TARGET_BOARD/bl2.bin || exit 0
 test -e $PREBUILT_DIR/$TARGET_BOARD/tzsw.bin || exit 0
-test -e $TARGET_DIR/bl2.bin || exit 0
 test -e $TARGET_DIR/u-boot.bin || exit 0
 test -e $TARGET_DIR/params_initrd.bin || exit 0
 
@@ -19,6 +19,7 @@ test -d ${TMP_DIR} || mkdir -p ${TMP_DIR}
 pushd ${TMP_DIR}
 
 cp $PREBUILT_DIR/$TARGET_BOARD/bl1.bin $TARGET_DIR/
+cp $PREBUILT_DIR/$TARGET_BOARD/bl2.bin $TARGET_DIR/
 cp $PREBUILT_DIR/$TARGET_BOARD/tzsw.bin $TARGET_DIR/
 
 dd if=/dev/zero of=$IMG_NAME bs=512 count=$SD_BOOT_SZ

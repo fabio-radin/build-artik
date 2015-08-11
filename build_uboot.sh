@@ -20,7 +20,6 @@ tools/mkenvimage -s 16384 -o params_initrd.bin default_envs.txt
 rm copy_env_common.o default_envs.txt
 
 cp u-boot.bin $TARGET_DIR
-cp spl/$UBOOT_SPL $TARGET_DIR/bl2.bin
 cp params.bin params_initrd.bin $TARGET_DIR
 cp u-boot $TARGET_DIR
 
