@@ -13,6 +13,7 @@ make $KERNEL_DTB
 
 cp arch/arm/boot/zImage $TARGET_DIR
 cp arch/arm/boot/dts/$KERNEL_DTB $TARGET_DIR
+cp vmlinux $TARGET_DIR
 
 KERNEL_VERSION=`make ARCH=arm kernelrelease`
 
