@@ -48,7 +48,7 @@ sudo kpartx -a -v ${IMG_NAME}
 LOOP_DEV1=`sudo kpartx -l ${IMG_NAME} | awk '{ print $1 }' | awk 'NR == 1'`
 LOOP_DEV2=`sudo kpartx -l ${IMG_NAME} | awk '{ print $1 }' | awk 'NR == 2'`
 
-sudo dd conv=notrunc if=$TARGET_DIR/boot.img of=$IMG_NAME bs=1M seek=1048576 count=$BOOT_SIZE oflag=seek_bytes
+sudo dd conv=notrunc if=$TARGET_DIR/boot.img of=$IMG_NAME bs=1M seek=1 count=$BOOT_SIZE
 
 sudo mkfs.ext4 -F -b 4096 -m 0 -L rootfs /dev/mapper/${LOOP_DEV2}
 test -d mnt || mkdir mnt
