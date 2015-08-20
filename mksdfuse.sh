@@ -43,6 +43,8 @@ dd conv=notrunc if=$TARGET_DIR/sd_boot.img of=$IMG_NAME bs=512
 
 repartition $IMG_NAME
 
+sync;sync;sync
+
 sudo kpartx -a -v ${IMG_NAME}
 
 LOOP_DEV1=`sudo kpartx -l ${IMG_NAME} | awk '{ print $1 }' | awk 'NR == 1'`
