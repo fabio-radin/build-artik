@@ -1,6 +1,5 @@
 #!/bin/bash
 
-set -e
 set -x
 
 test -d ${TARGET_DIR} || mkdir -p ${TARGET_DIR}
@@ -23,6 +22,17 @@ for dir in $ROOTFS_ATTACH_DIRS
 do
 	sudo cp -rf $dir/* ./
 done
+
+# Fix rootfs failed service
+sudo sed -i 's/kernel.pid_max = 65536/kernel.pid_max = 32768/g' etc/sysctl.conf
+
+sudo mkdir var/log/sa
+
+# Remove unnecessary services
+sudo rm etc/systemd/system/multi-user.target.wants/cups.path
+sudo rm etc/systemd/system/sockets.target.wants/cups.socket
+sudo rm etc/systemd/system/multi-user.target.wants/sendmail.service
+sudo rm etc/systemd/system/multi-user.target.wants/sm-client.service
 
 sudo cp ${TARGET_DIR}/artik_release etc/
 
