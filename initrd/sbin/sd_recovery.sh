@@ -16,6 +16,9 @@ fuse_rootfs_partition()
 	sync; sync; sync
 }
 
+mdev -s
+sync
+
 mount -t ext4 $SD_ROOT_DEV $SD_MNT
 
 echo "(1/1) Fusing rootfs partition"
