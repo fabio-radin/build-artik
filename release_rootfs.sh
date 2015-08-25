@@ -44,6 +44,9 @@ sudo sed -i "s/#metalink=/metalink=/g" etc/yum.repos.d/fedora.repo
 sudo sed -i "s/baseurl=/#baseurl=/g" etc/yum.repos.d/fedora-updates.repo
 sudo sed -i "s/#metalink=/metalink=/g" etc/yum.repos.d/fedora-updates.repo
 
+# Allow to access ssh for other users
+sudo sed -i "/AllowUsers /d" etc/ssh/sshd_config
+
 sudo cp ${TARGET_DIR}/artik_release etc/
 
 sudo tar zcf ${TARGET_DIR}/rootfs.tar.gz *
