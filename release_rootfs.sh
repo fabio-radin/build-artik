@@ -34,6 +34,16 @@ sudo rm etc/systemd/system/sockets.target.wants/cups.socket
 sudo rm etc/systemd/system/multi-user.target.wants/sendmail.service
 sudo rm etc/systemd/system/multi-user.target.wants/sm-client.service
 
+# Remove invalid openstack repo
+sudo rm etc/yum.repos.d/rdo-release.repo
+
+# Use mirror repo for updates
+sudo sed -i "s/baseurl=/#baseurl=/g" etc/yum.repos.d/fedora.repo
+sudo sed -i "s/#metalink=/metalink=/g" etc/yum.repos.d/fedora.repo
+
+sudo sed -i "s/baseurl=/#baseurl=/g" etc/yum.repos.d/fedora-updates.repo
+sudo sed -i "s/#metalink=/metalink=/g" etc/yum.repos.d/fedora-updates.repo
+
 sudo cp ${TARGET_DIR}/artik_release etc/
 
 sudo tar zcf ${TARGET_DIR}/rootfs.tar.gz *
