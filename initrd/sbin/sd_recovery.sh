@@ -23,6 +23,13 @@ mount -t ext4 $SD_ROOT_DEV $SD_MNT
 
 echo "(1/1) Fusing rootfs partition"
 echo "Please wait until completion message"
+
+/sbin/led.sh start &
+LED_PID=$!
+
 fuse_rootfs_partition
 
 echo "!!!! Complete ARTIK ROOT Filesystem Fusing !!!!"
+
+kill -9 ${LED_PID}
+/sbin/led.sh end &
