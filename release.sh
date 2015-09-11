@@ -15,6 +15,8 @@ print_usage()
 	echo "-p/--patchver     SW Patch version - 00 ~ zz, ex) -p 01"
 	echo "-q/--swqual       SW Qual status, FS:0, ES:E, CS:Q, Test:T"
 	echo "-r/--rcver        SW RC version, 0~z"
+	echo "-v/--fullver      Pass full version name like: -v A50GC0E-3AF-01030"
+	echo "-d/--date		Release date: -d 20150911.112204"
 	exit 0
 }
 
@@ -50,6 +52,12 @@ parse_options()
 			-r|--rcver)
 				RC_VER="$2"
 				shift ;;
+			-v|--fullver)
+				REL_VER="$2"
+				shift ;;
+			-d|--date)
+				RELEASE_DATE="$2"
+				shift ;;
 			*)
 				shift ;;
 		esac
@@ -79,6 +87,9 @@ make_release_version()
 	if [ "$RC_VER" != "" ]; then
 		RELEASE_VER=${RELEASE_VER:0:15}${RC_VER}${RELEASE_VER:16}
 	fi
+	if [ "$REL_VER" != "" ]; then
+		RELEASE_VER=$REL_VER
+	fi
 	export RELEASE_VER=$RELEASE_VER
 }
 
@@ -91,9 +102,14 @@ fi
 
 make_release_version
 
-export RELEASE_DATE=`date +"%Y%m%d.%H%M%S"`
+if [ "$RELEASE_DATE" == "" ]
+then
+	RELEASE_DATE=`date +"%Y%m%d.%H%M%S"`
+fi
+
+export RELEASE_DATE=$RELEASE_DATE
 TARGET_DIR_BACKUP=$TARGET_DIR
-export TARGET_DIR=$TARGET_DIR/$RELEASE_DATE
+export TARGET_DIR=$TARGET_DIR/$RELEASE_VER/$RELEASE_DATE
 
 sudo ls > /dev/null 2>&1
 
