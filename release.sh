@@ -17,6 +17,7 @@ print_usage()
 	echo "-r/--rcver        SW RC version, 0~z"
 	echo "-v/--fullver      Pass full version name like: -v A50GC0E-3AF-01030"
 	echo "-d/--date		Release date: -d 20150911.112204"
+	echo "-m/--microsd	Make a microsd bootable image"
 	exit 0
 }
 
@@ -57,6 +58,9 @@ parse_options()
 				shift ;;
 			-d|--date)
 				RELEASE_DATE="$2"
+				shift ;;
+			-m|--microsd)
+				MICROSD_IMAGE="1"
 				shift ;;
 			*)
 				shift ;;
@@ -123,11 +127,11 @@ __EOF__
 ./build_kernel.sh
 
 ./mkuInitrd.sh
-./mksdboot.sh
+./mksdboot.sh $MICROSD_IMAGE
 ./mkbootimg.sh
 ./release_rootfs.sh
 
-./mksdfuse.sh
+./mksdfuse.sh $MICROSD_IMAGE
 
 ls -al $TARGET_DIR
 

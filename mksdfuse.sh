@@ -10,6 +10,8 @@ test -e $TARGET_DIR/rootfs.tar.gz || exit 0
 
 test -e $TARGET_DIR || mkdir -p $TARGET_DIR
 
+MICROSD_IMAGE=$1
+
 repartition() {
 fdisk $1 << __EOF__
 n
@@ -27,10 +29,18 @@ w
 __EOF__
 }
 
+if [ "$MICROSD_IMAGE" == "1" ]; then
+IMG_NAME=${TARGET_BOARD}_sdcard.img
+else
 IMG_NAME=${TARGET_BOARD}_sdfuse.img
+fi
 
 ROOTFS_SIZE=`stat -c%s $ROOTFS_FILE`
 ROOTFS_SZ=$((ROOTFS_SIZE >> 20))
+# 3GB will be required for sdcard image
+if [ "$MICROSD_IMAGE" == "1" ]; then
+	ROOTFS_SZ=3072
+fi
 TOTAL_SZ=`expr $ROOTFS_SZ + $BOOT_SIZE + $BOOT_SIZE + 2 + 120`
 
 pushd ${TMP_DIR}
@@ -58,6 +68,9 @@ test -d mnt || mkdir mnt
 sudo mount /dev/mapper/${LOOP_DEV2} mnt
 sync
 
+if [ "$MICROSD_IMAGE" == "1" ]; then
+sudo tar xf $TARGET_DIR/rootfs.tar.gz -C mnt
+else
 sudo cp $TARGET_DIR/bl1.bin mnt
 sudo cp $TARGET_DIR/bl2.bin mnt
 sudo cp $TARGET_DIR/u-boot.bin mnt
@@ -65,6 +78,7 @@ sudo cp $TARGET_DIR/tzsw.bin mnt
 sudo cp $TARGET_DIR/params.bin mnt
 sudo cp $TARGET_DIR/boot.img mnt
 sudo cp $TARGET_DIR/rootfs.tar.gz mnt
+fi
 
 sync;sync
 
