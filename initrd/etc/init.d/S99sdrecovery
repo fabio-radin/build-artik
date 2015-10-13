@@ -5,8 +5,11 @@
 
 case "$1" in
 start)
-echo "Starting recovery..."
-/sbin/sd_recovery.sh
+recovery_on=`cat /proc/cmdline | grep recovery`
+if [ "$recovery_on" != "" ]; then
+	echo "Starting recovery..."
+	/sbin/sd_recovery.sh
+fi
 ;;
 stop)
 ;;
