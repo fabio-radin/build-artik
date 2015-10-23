@@ -1,7 +1,6 @@
 #!/bin/bash
 
 set -x
-set -e
 
 if [ "$#" != "1" ]; then
 	echo "Please specify a device node of sdcard"
@@ -12,23 +11,28 @@ fi
 
 DEVICE=$1
 
+for disk in ${DEVICE}*
+do
+	sudo umount $disk
+done
+
 sudo fdisk $DEVICE <<EOF
 p
 d
-2
+3
 n
 p
-2
+3
 
 
-p
+
 w
 EOF
 
 sync; sync
 
-sudo e2fsck -f ${DEVICE}2
-sudo resize2fs ${DEVICE}2
+sudo e2fsck -f -y ${DEVICE}3
+sudo resize2fs ${DEVICE}3
 
 sync; sync
 
