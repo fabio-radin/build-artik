@@ -15,7 +15,7 @@ test -e $TARGET_DIR/u-boot.bin || exit 0
 if [ "$MICROSD_IMAGE" == "1" ]; then
 	PARAMS_NAME="params_sdboot.bin"
 else
-	PARAMS_NAME="params_initrd.bin"
+	PARAMS_NAME="params_recovery.bin"
 fi
 
 test -e $TARGET_DIR/$PARAMS_NAME || exit 0
