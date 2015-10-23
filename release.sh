@@ -64,7 +64,6 @@ __EOF__
 ./build_uboot.sh
 ./build_kernel.sh
 
-./mkuInitrd.sh
 ./mksdboot.sh $MICROSD_IMAGE
 ./mkbootimg.sh
 ./release_rootfs.sh

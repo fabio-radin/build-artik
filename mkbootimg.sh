@@ -10,9 +10,12 @@ die() {
 
 test -e $TARGET_DIR/zImage || die "not found"
 test -e $TARGET_DIR/$KERNEL_DTB || die "not found"
+test -e $INITRD || die "not found"
 
 test -e $TARGET_DIR || mkdir -p $TARGET_DIR
 test -e $TMP_DIR || mkdir -p $TMP_DIR
+
+cp $INITRD $TARGET_DIR/uInitrd
 
 pushd $TMP_DIR
 dd if=/dev/zero of=boot.img bs=1M count=$BOOT_SIZE
