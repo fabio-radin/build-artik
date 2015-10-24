@@ -45,7 +45,7 @@ ROOTFS_SZ=$((ROOTFS_SIZE >> 20))
 if [ "$MICROSD_IMAGE" == "1" ]; then
 	ROOTFS_SZ=3072
 fi
-TOTAL_SZ=`expr $ROOTFS_SZ + $BOOT_SIZE + $MODULE_SIZE + 2 + 120`
+TOTAL_SZ=`expr $ROOTFS_SZ + $BOOT_SIZE + $MODULE_SIZE + 2 + 100`
 
 pushd ${TMP_DIR}
 dd if=/dev/zero of=$IMG_NAME bs=1M count=$TOTAL_SZ
@@ -69,7 +69,7 @@ sudo dd conv=notrunc if=$TARGET_DIR/boot.img of=$IMG_NAME bs=1M seek=1 count=$BO
 let SEEK_MODULES=(${BOOT_SIZE} + 1)
 sudo dd conv=notrunc if=$TARGET_DIR/modules.img of=$IMG_NAME bs=1M seek=$SEEK_MODULES count=$MODULE_SIZE
 
-sudo mkfs.ext4 -F -b 4096 -m 0 -L rootfs /dev/mapper/${LOOP_DEV2}
+sudo mkfs.ext4 -F -b 4096 -L rootfs /dev/mapper/${LOOP_DEV2}
 test -d mnt || mkdir mnt
 
 sudo mount /dev/mapper/${LOOP_DEV2} mnt
