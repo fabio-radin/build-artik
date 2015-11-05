@@ -39,13 +39,15 @@ else
 IMG_NAME=${TARGET_BOARD}_sdfuse.img
 fi
 
-ROOTFS_SIZE=`stat -c%s $TARGET_DIR/rootfs.tar.gz`
-ROOTFS_SZ=$((ROOTFS_SIZE >> 20))
-# 3GB will be required for sdcard image
 if [ "$MICROSD_IMAGE" == "1" ]; then
-	ROOTFS_SZ=3072
+	ROOTFS_SIZE=`gzip -l $TARGET_DIR/rootfs.tar.gz | grep rootfs | awk '{ print $2 }'`
+	ROOTFS_GAIN=200
+else
+	ROOTFS_SIZE=`stat -c%s $TARGET_DIR/rootfs.tar.gz`
+	ROOTFS_GAIN=100
 fi
-TOTAL_SZ=`expr $ROOTFS_SZ + $BOOT_SIZE + $MODULE_SIZE + 2 + 100`
+ROOTFS_SZ=$((ROOTFS_SIZE >> 20))
+TOTAL_SZ=`expr $ROOTFS_SZ + $BOOT_SIZE + $MODULE_SIZE + 2 + $ROOTFS_GAIN`
 
 pushd ${TMP_DIR}
 dd if=/dev/zero of=$IMG_NAME bs=1M count=$TOTAL_SZ
