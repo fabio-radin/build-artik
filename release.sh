@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 print_usage()
 {
 	echo "-h/--help         Show help options"
@@ -8,6 +10,15 @@ print_usage()
 	echo "-d/--date		Release date: -d 20150911.112204"
 	echo "-m/--microsd	Make a microsd bootable image"
 	exit 0
+}
+
+error()
+{
+	JOB="$0"              # job name
+	LASTLINE="$1"         # line of error occurrence
+	LASTERR="$2"          # error code
+	echo "ERROR in ${JOB} : line ${LASTLINE} with exit code ${LASTERR}"
+	exit 1
 }
 
 parse_options()
@@ -36,6 +47,7 @@ parse_options()
 	done
 }
 
+trap 'error ${LINENO} ${?}' ERR
 parse_options "$@"
 
 if [ "$CONFIG_FILE" != "" ]
