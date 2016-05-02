@@ -8,6 +8,12 @@ test -e $TARGET_DIR/params.bin || exit 0
 test -e $TARGET_DIR/rootfs.tar.gz || exit 0
 test -e $TARGET_DIR/modules.img || exit 0
 
+BOOT_START_SECTOR=$((SKIP_BOOT_SIZE << 11))
+MODULE_START_OFFSET=$(expr $BOOT_SIZE + $SKIP_BOOT_SIZE)
+MODULE_START_SECTOR=$((MODULE_START_OFFSET << 11))
+ROOTFS_START_OFFSET=$(expr $MODULE_START_OFFSET + $MODULE_SIZE)
+ROOTFS_START_SECTOR=$((ROOTFS_START_OFFSET << 11))
+
 MICROSD_IMAGE=$1
 
 repartition() {
@@ -15,19 +21,19 @@ fdisk $1 << __EOF__
 n
 p
 1
-
+$BOOT_START_SECTOR
 +${BOOT_SIZE}M
 
 n
 p
 2
-
+${MODULE_START_SECTOR}
 +${MODULE_SIZE}M
 
 n
 p
 3
-
+${ROOTFS_START_SECTOR}
 
 w
 __EOF__
@@ -52,9 +58,6 @@ TOTAL_SZ=`expr $ROOTFS_SZ + $BOOT_SIZE + $MODULE_SIZE + 2 + $ROOTFS_GAIN`
 pushd ${TMP_DIR}
 dd if=/dev/zero of=$IMG_NAME bs=1M count=$TOTAL_SZ
 
-cp $PREBUILT_DIR/$TARGET_BOARD/bl1.bin $TARGET_DIR/
-cp $PREBUILT_DIR/$TARGET_BOARD/tzsw.bin $TARGET_DIR/
-
 dd conv=notrunc if=$TARGET_DIR/sd_boot.img of=$IMG_NAME bs=512
 
 repartition $IMG_NAME
@@ -66,10 +69,9 @@ sudo kpartx -a -v ${IMG_NAME}
 LOOP_DEV1=`sudo kpartx -l ${IMG_NAME} | awk '{ print $1 }' | awk 'NR == 1'`
 LOOP_DEV2=`sudo kpartx -l ${IMG_NAME} | awk '{ print $1 }' | awk 'NR == 3'`
 
-sudo dd conv=notrunc if=$TARGET_DIR/boot.img of=$IMG_NAME bs=1M seek=1 count=$BOOT_SIZE
+sudo dd conv=notrunc if=$TARGET_DIR/boot.img of=$IMG_NAME bs=1M seek=$SKIP_BOOT_SIZE count=$BOOT_SIZE
 
-let SEEK_MODULES=(${BOOT_SIZE} + 1)
-sudo dd conv=notrunc if=$TARGET_DIR/modules.img of=$IMG_NAME bs=1M seek=$SEEK_MODULES count=$MODULE_SIZE
+sudo dd conv=notrunc if=$TARGET_DIR/modules.img of=$IMG_NAME bs=1M seek=$MODULE_START_OFFSET count=$MODULE_SIZE
 
 sudo mkfs.ext4 -F -b 4096 -L rootfs /dev/mapper/${LOOP_DEV2}
 test -d mnt || mkdir mnt
