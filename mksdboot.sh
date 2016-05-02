@@ -8,7 +8,11 @@ MICROSD_IMAGE=$1
 SD_BOOT_SZ=`expr $ENV_OFFSET + 32`
 
 test -e $PREBUILT_DIR/$TARGET_BOARD/bl1.bin || exit 0
-test -e $PREBUILT_DIR/$TARGET_BOARD/bl2.bin || exit 0
+if [ "$USE_BL2_BUILD" == "1" ]; then
+	test -e $TARGET_DIR/$UBOOT_SPL || exit 0
+else
+	test -e $PREBUILT_DIR/$TARGET_BOARD/bl2.bin || exit 0
+fi
 test -e $PREBUILT_DIR/$TARGET_BOARD/tzsw.bin || exit 0
 test -e $TARGET_DIR/u-boot.bin || exit 0
 
@@ -28,7 +32,11 @@ test -d ${TMP_DIR} || mkdir -p ${TMP_DIR}
 pushd ${TMP_DIR}
 
 cp $PREBUILT_DIR/$TARGET_BOARD/bl1.bin $TARGET_DIR/
-cp $PREBUILT_DIR/$TARGET_BOARD/bl2.bin $TARGET_DIR/
+if [ "$USE_BL2_BUILD" == "1" ]; then
+	cp $TARGET_DIR/$UBOOT_SPL $TARGET_DIR/bl2.bin
+else
+	cp $PREBUILT_DIR/$TARGET_BOARD/bl2.bin $TARGET_DIR/
+fi
 cp $PREBUILT_DIR/$TARGET_BOARD/tzsw.bin $TARGET_DIR/
 
 dd if=/dev/zero of=$IMG_NAME bs=512 count=$SD_BOOT_SZ
