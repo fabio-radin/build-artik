@@ -9,6 +9,7 @@ print_usage()
 	echo "-v/--fullver      Pass full version name like: -v A50GC0E-3AF-01030"
 	echo "-d/--date		Release date: -d 20150911.112204"
 	echo "-m/--microsd	Make a microsd bootable image"
+	echo "-u/--url		Specify an url for downloading rootfs"
 	exit 0
 }
 
@@ -40,6 +41,9 @@ parse_options()
 				shift ;;
 			-m|--microsd)
 				MICROSD_IMAGE="1"
+				shift ;;
+			-u|--url)
+				SERVER_URL="$2"
 				shift ;;
 			*)
 				shift ;;
@@ -78,7 +82,7 @@ __EOF__
 
 ./mksdboot.sh $MICROSD_IMAGE
 ./mkbootimg.sh
-./release_rootfs.sh
+./release_rootfs.sh $SERVER_URL
 
 ./mksdfuse.sh $MICROSD_IMAGE
 
