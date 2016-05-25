@@ -86,6 +86,8 @@ __EOF__
 
 ./mksdfuse.sh $MICROSD_IMAGE
 
+./mkrootfs_image.sh $TARGET_DIR
+
 ls -al $TARGET_DIR
 
 echo "ARTIK release information"
