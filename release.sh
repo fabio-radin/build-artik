@@ -109,6 +109,9 @@ fi
 
 ./mkrootfs_image.sh $TARGET_DIR
 
+cp flash_all_by_fastboot.sh $TARGET_DIR
+cp prebuilt/$TARGET_BOARD/u-boot-recovery.bin $TARGET_DIR
+
 ls -al $TARGET_DIR
 
 echo "ARTIK release information"
