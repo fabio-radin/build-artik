@@ -50,6 +50,9 @@ parse_options()
 			--full-build)
 				FULL_BUILD=true
 				shift ;;
+			--local-rootfs)
+				LOCAL_ROOTFS="$2"
+				shift ;;
 			*)
 				shift ;;
 		esac
@@ -102,7 +105,11 @@ if $FULL_BUILD ; then
 	FEDORA_TARBALL=`find $TARGET_DIR -name "fedora-arm-artik-rootfs*"`
 	cp $FEDORA_TARBALL $TARGET_DIR/rootfs.tar.gz
 else
-	./release_rootfs.sh $SERVER_URL
+	if [ "$LOCAL_ROOTFS" == "" ]; then
+		./release_rootfs.sh $SERVER_URL
+	else
+		cp $LOCAL_ROOTFS $TARGET_DIR/rootfs.tar.gz
+	fi
 fi
 
 ./mksdfuse.sh $MICROSD_IMAGE
