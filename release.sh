@@ -2,6 +2,8 @@
 
 set -e
 
+FULL_BUILD=false
+
 print_usage()
 {
 	echo "-h/--help         Show help options"
@@ -44,6 +46,9 @@ parse_options()
 				shift ;;
 			-u|--url)
 				SERVER_URL="$2"
+				shift ;;
+			--full-build)
+				FULL_BUILD=true
 				shift ;;
 			*)
 				shift ;;
@@ -91,7 +96,14 @@ __EOF__
 
 ./mksdboot.sh $MICROSD_IMAGE
 ./mkbootimg.sh
-./release_rootfs.sh $SERVER_URL
+
+if $FULL_BUILD ; then
+	./build_fedora.sh $TARGET_DIR $TARGET_BOARD
+	FEDORA_TARBALL=`find $TARGET_DIR -name "fedora-arm-artik-rootfs*"`
+	cp $FEDORA_TARBALL $TARGET_DIR/rootfs.tar.gz
+else
+	./release_rootfs.sh $SERVER_URL
+fi
 
 ./mksdfuse.sh $MICROSD_IMAGE
 
