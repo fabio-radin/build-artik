@@ -51,8 +51,17 @@ parse_options()
 	done
 }
 
+package_check()
+{
+	command -v $1 >/dev/null 2>&1 || { echo >&2 "${1} not installed. Aborting."; exit 1; }
+}
+
 trap 'error ${LINENO} ${?}' ERR
 parse_options "$@"
+
+package_check kpartx
+package_check mkimage
+package_check arm-linux-gnueabihf-gcc
 
 if [ "$CONFIG_FILE" != "" ]
 then
