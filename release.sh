@@ -12,6 +12,8 @@ print_usage()
 	echo "-d/--date		Release date: -d 20150911.112204"
 	echo "-m/--microsd	Make a microsd bootable image"
 	echo "-u/--url		Specify an url for downloading rootfs"
+	echo "--full-build	Full build with generating fedora rootfs"
+	echo "--local-rootfs	Copy fedora rootfs from local file instead of downloading"
 	exit 0
 }
 
