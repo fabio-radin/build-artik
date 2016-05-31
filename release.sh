@@ -83,6 +83,11 @@ then
 	RELEASE_DATE=`date +"%Y%m%d.%H%M%S"`
 fi
 
+if [ "$RELEASE_VER" == "" ]
+then
+	RELEASE_VER=UNRELEASED
+fi
+
 export RELEASE_DATE=$RELEASE_DATE
 TARGET_DIR_BACKUP=$TARGET_DIR
 
@@ -103,9 +108,10 @@ __EOF__
 ./mkbootimg.sh
 
 if $FULL_BUILD ; then
-	./build_fedora.sh $TARGET_DIR $TARGET_BOARD
-	FEDORA_TARBALL=`find $TARGET_DIR -name "fedora-arm-artik-rootfs*"`
-	cp $FEDORA_TARBALL $TARGET_DIR/rootfs.tar.gz
+	FEDORA_NAME=fedora-arm-artik-rootfs-$RELEASE_VER-$RELEASE_DATE
+	./build_fedora.sh $TARGET_DIR $TARGET_BOARD $FEDORA_NAME
+	FEDORA_TARBALL=${FEDORA_NAME}.tar.gz
+	cp $TARGET_DIR/$FEDORA_TARBALL $TARGET_DIR/rootfs.tar.gz
 else
 	if [ "$LOCAL_ROOTFS" == "" ]; then
 		./release_rootfs.sh $SERVER_URL

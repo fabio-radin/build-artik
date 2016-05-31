@@ -4,6 +4,7 @@ set -x
 
 TARGET_DIR=$1
 TARGET_BOARD=$2
+FEDORA_NAME=$3
 
 package_check()
 {
@@ -32,4 +33,11 @@ do
 	build_package $pkg $TARGET_BOARD
 done
 
-fed-artik-creator --copy-kickstart-dir ../spin-kickstarts --ks-file ../spin-kickstarts/fedora-arm-artik.ks -o $TARGET_DIR
+if [ "$FEDORA_NAME" != "" ]; then
+	fed-artik-creator --copy-kickstart-dir ../spin-kickstarts \
+		--ks-file ../spin-kickstarts/fedora-arm-artik.ks -o $TARGET_DIR \
+		--output-file $FEDORA_NAME
+else
+	fed-artik-creator --copy-kickstart-dir ../spin-kickstarts \
+		--ks-file ../spin-kickstarts/fedora-arm-artik.ks -o $TARGET_DIR
+fi
