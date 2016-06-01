@@ -158,7 +158,17 @@ if $FULL_BUILD ; then
 	set -e
 
 	FEDORA_NAME=fedora-arm-artik-rootfs-$RELEASE_VER-$RELEASE_DATE
-	./build_fedora.sh $TARGET_DIR $FEDORA_TARGET_BOARD $FEDORA_PACKAGE_FILE $FEDORA_NAME
+	if [ "$FEDORA_PREBUILT_RPM_DIR" != "" ]; then
+		./build_fedora.sh -o $TARGET_DIR -b $FEDORA_TARGET_BOARD \
+			-p $FEDORA_PACKAGE_FILE -n $FEDORA_NAME \
+			-k $FEDORA_KICKSTART_FILE \
+			-r $FEDORA_PREBUILT_RPM_DIR
+	else
+		./build_fedora.sh -o $TARGET_DIR -b $FEDORA_TARGET_BOARD \
+			-p $FEDORA_PACKAGE_FILE -n $FEDORA_NAME \
+			-k $FEDORA_KICKSTART_FILE
+	fi
+
 	FEDORA_TARBALL=${FEDORA_NAME}.tar.gz
 	cp $TARGET_DIR/$FEDORA_TARBALL $TARGET_DIR/rootfs.tar.gz
 else
