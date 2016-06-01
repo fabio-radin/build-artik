@@ -104,6 +104,8 @@ then
 fi
 
 export RELEASE_DATE=$RELEASE_DATE
+export RELEASE_VER=$RELEASE_VER
+
 TARGET_DIR_BACKUP=$TARGET_DIR
 
 export TARGET_DIR=$TARGET_DIR/$RELEASE_VER/$RELEASE_DATE
@@ -111,10 +113,17 @@ export TARGET_DIR=$TARGET_DIR/$RELEASE_VER/$RELEASE_DATE
 sudo ls > /dev/null 2>&1
 
 mkdir -p $TARGET_DIR
-cat > $TARGET_DIR/artik_release  << __EOF__
-RELEASE_VERSION=${RELEASE_VER}
-RELEASE_DATE=${RELEASE_DATE}
-__EOF__
+
+if [ -e $PREBUILT_DIR/$TARGET_BOARD/artik_release ]; then
+	cp $PREBUILT_DIR/$TARGET_BOARD/artik_release $TARGET_DIR
+else
+	cp $PREBUILT_DIR/artik_release $TARGET_DIR
+fi
+
+upper_model=$(echo -n ${TARGET_BOARD} | awk '{print toupper($0)}')
+sed -i "s/RELEASE_VERSION=/RELEASE_VERSION=${RELEASE_VER}/" ${TARGET_DIR}/artik_release
+sed -i "s/RELEASE_DATE=/RELEASE_DATE=${RELEASE_DATE}/" ${TARGET_DIR}/artik_release
+sed -i "s/MODEL=/MODEL=${upper_model}/" ${TARGET_DIR}/artik_release
 
 ./build_uboot.sh
 ./build_kernel.sh
