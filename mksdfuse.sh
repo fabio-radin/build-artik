@@ -40,9 +40,9 @@ __EOF__
 }
 
 if [ "$MICROSD_IMAGE" == "1" ]; then
-IMG_NAME=${TARGET_BOARD}_sdcard.img
+IMG_NAME=${TARGET_BOARD}_sdcard-${RELEASE_VER}-${RELEASE_DATE}.img
 else
-IMG_NAME=${TARGET_BOARD}_sdfuse.img
+IMG_NAME=${TARGET_BOARD}_sdfuse-${RELEASE_VER}-${RELEASE_DATE}.img
 fi
 
 if [ "$MICROSD_IMAGE" == "1" ]; then
