@@ -3,6 +3,9 @@
 set -e
 
 FULL_BUILD=false
+VERIFIED_BOOT=false
+VBOOT_KEYDIR=
+VBOOT_ITS=
 
 print_usage()
 {
@@ -14,6 +17,9 @@ print_usage()
 	echo "-u/--url		Specify an url for downloading rootfs"
 	echo "--full-build	Full build with generating fedora rootfs"
 	echo "--local-rootfs	Copy fedora rootfs from local file instead of downloading"
+	echo "--vboot		Generated verified boot image"
+	echo "--vboot-keydir	Specify key directoy for verified boot"
+	echo "--vboot-its	Specify its file for verified boot"
 	exit 0
 }
 
@@ -54,6 +60,15 @@ parse_options()
 				shift ;;
 			--local-rootfs)
 				LOCAL_ROOTFS="$2"
+				shift ;;
+			--vboot)
+				VERIFIED_BOOT=true
+				shift ;;
+			--vboot-keydir)
+				VBOOT_KEYDIR="$2"
+				shift ;;
+			--vboot-its)
+				VBOOT_ITS="$2"
 				shift ;;
 			*)
 				shift ;;
@@ -103,6 +118,17 @@ __EOF__
 
 ./build_uboot.sh
 ./build_kernel.sh
+
+if $VERIFIED_BOOT ; then
+	if [ "$VBOOT_ITS" == "" ]; then
+		VBOOT_ITS=$PREBUILT_DIR/$TARGET_BOARD/kernel_fit_verify.its
+	fi
+	if [ "$VBOOT_KEYDIR" == "" ]; then
+		echo "Please specify key directory using --vboot-keydir"
+		exit 0
+	fi
+	./mkvboot.sh $TARGET_DIR $VBOOT_KEYDIR $VBOOT_ITS
+fi
 
 ./mksdboot.sh $MICROSD_IMAGE
 ./mkbootimg.sh
