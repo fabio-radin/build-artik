@@ -143,8 +143,22 @@ fi
 ./mkbootimg.sh
 
 if $FULL_BUILD ; then
+	set +e
+	if [ "$BASE_BOARD" != "" ]; then
+		FEDORA_TARGET_BOARD=$BASE_BOARD
+		if [ -e config/${TARGET_BOARD}.package ]; then
+			FEDORA_PACKAGE_FILE=config/${TARGET_BOARD}_fedora.package
+		else
+			FEDORA_PACKAGE_FILE=config/${BASE_BOARD}_fedora.package
+		fi
+	else
+		FEDORA_TARGET_BOARD=$TARGET_BOARD
+		FEDORA_PACKAGE_FILE=config/${TARGET_BOARD}_fedora.package
+	fi
+	set -e
+
 	FEDORA_NAME=fedora-arm-artik-rootfs-$RELEASE_VER-$RELEASE_DATE
-	./build_fedora.sh $TARGET_DIR $TARGET_BOARD $FEDORA_NAME
+	./build_fedora.sh $TARGET_DIR $FEDORA_TARGET_BOARD $FEDORA_PACKAGE_FILE $FEDORA_NAME
 	FEDORA_TARBALL=${FEDORA_NAME}.tar.gz
 	cp $TARGET_DIR/$FEDORA_TARBALL $TARGET_DIR/rootfs.tar.gz
 else

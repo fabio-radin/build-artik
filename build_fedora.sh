@@ -4,7 +4,8 @@ set -x
 
 TARGET_DIR=$1
 TARGET_BOARD=$2
-FEDORA_NAME=$3
+TARGET_PACKAGE=$3
+FEDORA_NAME=$4
 
 package_check()
 {
@@ -23,7 +24,7 @@ build_package()
 
 package_check fed-artik-creator
 
-FEDORA_PACKAGES=`cat config/artik5_fedora.package`
+FEDORA_PACKAGES=`cat $TARGET_PACKAGE`
 
 echo "Clean up local repository..."
 fed-artik-build --clean-repos-and-exit
