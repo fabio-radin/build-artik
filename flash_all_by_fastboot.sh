@@ -32,4 +32,5 @@ sudo fastboot flash modules $OUTPUT_DIR/modules.img
 echo "Fusing rootfs image..."
 sudo fastboot flash rootfs $OUTPUT_DIR/rootfs.img
 
+sudo fastboot reboot
 echo "Fusing done"
