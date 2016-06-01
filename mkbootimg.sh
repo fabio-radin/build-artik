@@ -23,9 +23,9 @@ sudo mkfs.vfat -n boot boot.img
 test -d mnt || mkdir mnt
 sudo mount -o loop boot.img mnt
 
-sudo cp $TARGET_DIR/zImage mnt
-sudo cp $TARGET_DIR/$KERNEL_DTB mnt
-sudo cp $TARGET_DIR/uInitrd mnt
+sudo install -m 755 $TARGET_DIR/zImage mnt
+sudo install -m 755 $TARGET_DIR/$KERNEL_DTB mnt
+sudo install -m 755 $TARGET_DIR/uInitrd mnt
 
 sync; sync;
 sudo umount mnt
