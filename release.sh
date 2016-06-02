@@ -143,19 +143,11 @@ fi
 ./mkbootimg.sh
 
 if $FULL_BUILD ; then
-	set +e
 	if [ "$BASE_BOARD" != "" ]; then
 		FEDORA_TARGET_BOARD=$BASE_BOARD
-		if [ -e config/${TARGET_BOARD}.package ]; then
-			FEDORA_PACKAGE_FILE=config/${TARGET_BOARD}_fedora.package
-		else
-			FEDORA_PACKAGE_FILE=config/${BASE_BOARD}_fedora.package
-		fi
 	else
 		FEDORA_TARGET_BOARD=$TARGET_BOARD
-		FEDORA_PACKAGE_FILE=config/${TARGET_BOARD}_fedora.package
 	fi
-	set -e
 
 	FEDORA_NAME=fedora-arm-artik-rootfs-$RELEASE_VER-$RELEASE_DATE
 	if [ "$FEDORA_PREBUILT_RPM_DIR" != "" ]; then
