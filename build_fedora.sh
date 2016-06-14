@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -x
+set -e
 
 TARGET_DIR=
 TARGET_BOARD=
@@ -18,6 +18,8 @@ print_usage()
 	echo "-p		Target package file"
 	echo "-n		Output name"
 	echo "-r		Prebuilt rpm directory"
+	echo "-k		Kickstart file"
+	echo "-K		Kickstart directory"
 	exit 0
 }
 
