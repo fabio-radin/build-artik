@@ -1,16 +1,46 @@
 #!/bin/bash
 
-OUTPUT_DIR=$1
+OUTPUT_DIR=`pwd`
+MIGRATE_UBOOT=false
 
-if [ "$OUTPUT_DIR" == "" ]; then
-	OUTPUT_DIR=.
+print_usage()
+{
+	echo "-h/--help         Show help options"
+	echo "-o       Specify directory of output files"
+	echo "-m       Specify option to migrate bootloader"
+	exit 0
+}
+
+parse_options()
+{
+	for opt in "$@"
+	do
+		case "$opt" in
+			-h|--help)
+				print_usage
+				shift ;;
+			-o)
+				OUTPUT_DIR="$2"
+				shift ;;
+			-m)
+				MIGRATE_UBOOT=true
+				shift ;;
+			*)
+				shift ;;
+		esac
+	done
+}
+
+parse_options "$@"
+
+if $MIGRATE_UBOOT; then
+	echo "Migrate to new bootloader..."
+	sudo fastboot flash bootloader $OUTPUT_DIR/u-boot-recovery.bin
+	sudo fastboot reboot-bootloader
+
+	sleep 4
 fi
 
-echo "Migrate new bootloader..."
-sudo fastboot flash bootloader $OUTPUT_DIR/u-boot-recovery.bin
-sudo fastboot reboot-bootloader
-
-sleep 4
 echo "Fusing bootloader binaries..."
 sudo fastboot flash fwbl1 $OUTPUT_DIR/bl1.bin
 sudo fastboot flash bl2 $OUTPUT_DIR/bl2.bin
