@@ -26,6 +26,10 @@ cp default_envs.txt.orig default_envs.txt
 sed -i -e 's/rootdev=0/rootdev=1/g' default_envs.txt
 tools/mkenvimage -s 16384 -o params_sdboot.bin default_envs.txt
 
+# Generate sd-vboot param
+sed -i -e 's/bootcmd=run ramfsboot/bootcmd=run vboot/g' default_envs.txt
+tools/mkenvimage -s 16384 -o params_sdvboot.bin default_envs.txt
+
 # Generate vboot param
 cp default_envs.txt.orig default_envs.txt
 sed -i -e 's/bootcmd=run ramfsboot/bootcmd=run vboot/g' default_envs.txt

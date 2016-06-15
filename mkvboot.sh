@@ -22,5 +22,6 @@ cat u-boot.bin u-boot.dtb > u-boot-dtb.bin
 cp u-boot-dtb.bin u-boot.bin
 cp params_vboot.bin params.bin
 cp params_recovery_vboot.bin params_recovery.bin
+cp params_sdvboot.bin params_sdboot.bin
 
 popd
