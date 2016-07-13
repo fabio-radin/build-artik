@@ -44,10 +44,10 @@ parse_options()
 				CONFIG_FILE="$2"
 				shift ;;
 			-v|--fullver)
-				RELEASE_VER="$2"
+				BUILD_VERSION="$2"
 				shift ;;
 			-d|--date)
-				RELEASE_DATE="$2"
+				BUILD_DATE="$2"
 				shift ;;
 			-m|--microsd)
 				MICROSD_IMAGE="1"
@@ -78,52 +78,57 @@ parse_options()
 
 package_check()
 {
-	command -v $1 >/dev/null 2>&1 || { echo >&2 "${1} not installed. Aborting."; exit 1; }
+	command -v $1 >/dev/null 2>&1 || { echo >&2 "${1} not installed. Please install \"sudo apt-get install $2\""; exit 1; }
+}
+
+gen_artik_release()
+{
+	upper_model=$(echo -n ${TARGET_BOARD} | awk '{print toupper($0)}')
+	cat > $TARGET_DIR/artik_release << __EOF__
+BUILD_VERSION=${BUILD_VERSION}
+BUILD_DATE=${BUILD_DATE}
+BUILD_UBOOT=
+BUILD_KERNEL=
+MODEL=${upper_model}
+WIFI_FW=${WIFI_FW}
+BT_FW=${BT_FW}
+ZIGBEE_FW=${ZIGBEE_FW}
+SE_FW=${SE_FW}
+__EOF__
 }
 
 trap 'error ${LINENO} ${?}' ERR
 parse_options "$@"
 
-package_check kpartx
-package_check mkimage
-package_check arm-linux-gnueabihf-gcc
+package_check kpartx kpartx
+package_check make_ext4fs android-tools-fsutils
+package_check arm-linux-gnueabihf-gcc gcc-arm-linux-gnueabihf
 
 if [ "$CONFIG_FILE" != "" ]
 then
 	. $CONFIG_FILE
 fi
 
-if [ "$RELEASE_DATE" == "" ]
+if [ "$BUILD_DATE" == "" ]
 then
-	RELEASE_DATE=`date +"%Y%m%d.%H%M%S"`
+	BUILD_DATE=`date +"%Y%m%d.%H%M%S"`
 fi
 
-if [ "$RELEASE_VER" == "" ]
+if [ "$BUILD_VERSION" == "" ]
 then
-	RELEASE_VER=UNRELEASED
+	BUILD_VERSION=UNRELEASED
 fi
 
-export RELEASE_DATE=$RELEASE_DATE
-export RELEASE_VER=$RELEASE_VER
+export BUILD_DATE=$BUILD_DATE
+export BUILD_VERSION=$BUILD_VERSION
 
-TARGET_DIR_BACKUP=$TARGET_DIR
-
-export TARGET_DIR=$TARGET_DIR/$RELEASE_VER/$RELEASE_DATE
+export TARGET_DIR=$TARGET_DIR/$BUILD_VERSION/$BUILD_DATE
 
 sudo ls > /dev/null 2>&1
 
 mkdir -p $TARGET_DIR
 
-if [ -e $PREBUILT_DIR/$TARGET_BOARD/artik_release ]; then
-	cp $PREBUILT_DIR/$TARGET_BOARD/artik_release $TARGET_DIR
-else
-	cp $PREBUILT_DIR/artik_release $TARGET_DIR
-fi
-
-upper_model=$(echo -n ${TARGET_BOARD} | awk '{print toupper($0)}')
-sed -i "s/RELEASE_VERSION=/RELEASE_VERSION=${RELEASE_VER}/" ${TARGET_DIR}/artik_release
-sed -i "s/RELEASE_DATE=/RELEASE_DATE=${RELEASE_DATE}/" ${TARGET_DIR}/artik_release
-sed -i "s/MODEL=/MODEL=${upper_model}/" ${TARGET_DIR}/artik_release
+gen_artik_release
 
 ./build_uboot.sh
 ./build_kernel.sh
@@ -139,7 +144,12 @@ if $VERIFIED_BOOT ; then
 	./mkvboot.sh $TARGET_DIR $VBOOT_KEYDIR $VBOOT_ITS
 fi
 
-./mksdboot.sh $MICROSD_IMAGE
+if [ "$MICROSD_IMAGE" == "1" ]; then
+	./mksdboot.sh -m
+else
+	./mksdboot.sh
+fi
+
 ./mkbootimg.sh
 
 if $FULL_BUILD ; then
@@ -171,16 +181,26 @@ else
 	fi
 fi
 
-./mksdfuse.sh $MICROSD_IMAGE
+if [ "$MICROSD_IMAGE" == "1" ]; then
+	./mksdfuse.sh -m
+else
+	./mksdfuse.sh
+fi
 
 ./mkrootfs_image.sh $TARGET_DIR
 
-cp flash_all_by_fastboot.sh $TARGET_DIR
-cp prebuilt/$TARGET_BOARD/u-boot-recovery.bin $TARGET_DIR
+if [ -e $PREBUILT_DIR/$TARGET_BOARD/flash_all_by_fastboot.sh ]; then
+	cp $PREBUILT_DIR/$TARGET_BOARD/flash_all_by_fastboot.sh $TARGET_DIR
+	cp $PREBUILT_DIR/$TARGET_BOARD/partition.txt $TARGET_DIR
+else
+	cp flash_all_by_fastboot.sh $TARGET_DIR
+fi
+
+if [ -e $PREBUILT_DIR/$TARGET_BOARD/u-boot-recovery.bin ]; then
+	cp $PREBUILT_DIR/$TARGET_BOARD/u-boot-recovery.bin $TARGET_DIR
+fi
 
 ls -al $TARGET_DIR
 
 echo "ARTIK release information"
 cat $TARGET_DIR/artik_release
-
-export TARGET_DIR=$TARGET_DIR_BACKUP

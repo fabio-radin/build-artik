@@ -1,15 +1,53 @@
 #!/bin/bash
 
-set -x
 set -e
 
 CHECK_COUNT=0
 MAX_RETRY=3
+SERVER_URL="http://artik:artik%40iot@59.13.55.140/downloads/artik/fedora"
 
-if [ "$1" == "" ]; then
-	SERVER_URL="http://artik:artik%40iot@59.13.55.140/downloads/artik/fedora"
+print_usage()
+{
+	echo "-h/--help         Show help options"
+	echo "-b [TARGET_BOARD]	Target board ex) -b artik710|artik5|artik10"
+	echo "-s [SERVER_URL]	Server URL to download the rootfs"
+
+	exit 0
+}
+
+parse_options()
+{
+	for opt in "$@"
+	do
+		case "$opt" in
+			-h|--help)
+				print_usage
+				shift ;;
+			-b)
+				TARGET_BOARD="$2"
+				shift ;;
+			-s)
+				SERVER_URL="$2"
+				shift ;;
+		esac
+	done
+}
+
+die() {
+	if [ -n "$1" ]; then echo $1; fi
+	exit 1
+}
+
+trap 'error ${LINENO} ${?}' ERR
+parse_options "$@"
+
+SCRIPT_DIR=`dirname "$(readlink -f "$0")"`
+if [ "$TARGET_BOARD" == "" ]; then
+	print_usage
 else
-	SERVER_URL=$1
+	if [ "$TARGET_DIR" == "" ]; then
+		. $SCRIPT_DIR/config/$TARGET_BOARD.cfg
+	fi
 fi
 
 test -d ${TARGET_DIR} || mkdir -p ${TARGET_DIR}

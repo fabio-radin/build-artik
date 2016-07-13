@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -x
+set -e
 
 if [ "$TARGET_DIR" == "" ]; then
 	TARGET_DIR=$1
@@ -12,6 +12,10 @@ test -e $TARGET_DIR/rootfs.tar.gz || exit 0
 test -e $TARGET_DIR/artik_release || exit 0
 
 dd if=/dev/zero of=$TARGET_DIR/rootfs.img bs=1M count=$ROOTFS_MAX
+ROOTFS_SIZE=`gzip -l $TARGET_DIR/rootfs.tar.gz | grep "rootfs.tar" | awk '{ print $2 }'`
+ROOTFS_GAIN=300
+ROOTFS_SZ=$((ROOTFS_SIZE >> 20))
+TOTAL_SZ=`expr $ROOTFS_SZ + $ROOTFS_GAIN`
 
 mkdir -p $TARGET_DIR/rootfs
 mkfs.ext4 -F -b 4096 -L rootfs $TARGET_DIR/rootfs.img
@@ -23,6 +27,6 @@ sync
 
 sudo umount $TARGET_DIR/rootfs
 e2fsck -y -f $TARGET_DIR/rootfs.img
-resize2fs -M $TARGET_DIR/rootfs.img
+resize2fs -f $TARGET_DIR/rootfs.img ${TOTAL_SZ}M
 
 ls -al $TARGET_DIR/rootfs.img
