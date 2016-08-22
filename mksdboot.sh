@@ -52,9 +52,9 @@ SD_BOOT_SZ=`expr $ENV_OFFSET + 32`
 
 test -e $TARGET_DIR/$UBOOT_IMAGE || die
 if [ "$CHIP_NAME" == "s5p6818" ]; then
-	test -e $PREBUILT_DIR/$TARGET_BOARD/bl1-sdboot.img || die
-	test -e $PREBUILT_DIR/$TARGET_BOARD/fip-loader-sd.img || die
-	test -e $PREBUILT_DIR/$TARGET_BOARD/fip-secure.img || die
+	test -e $PREBUILT_DIR/bl1-sdboot.img || die
+	test -e $PREBUILT_DIR/fip-loader-sd.img || die
+	test -e $PREBUILT_DIR/fip-secure.img || die
 else
 	test -e $PREBUILT_DIR/$TARGET_BOARD/bl1.bin || die
 	test -e $TARGET_DIR/$UBOOT_SPL || die
@@ -78,10 +78,10 @@ pushd ${TARGET_DIR}
 dd if=/dev/zero of=$IMG_NAME bs=512 count=$SD_BOOT_SZ
 
 if [ "$CHIP_NAME" == "s5p6818" ]; then
-	cp $PREBUILT_DIR/$TARGET_BOARD/bl1-*.img $TARGET_DIR
-	cp $PREBUILT_DIR/$TARGET_BOARD/fip-loader-*.img $TARGET_DIR
-	cp $PREBUILT_DIR/$TARGET_BOARD/fip-secure.img $TARGET_DIR
-	cp $PREBUILT_DIR/$TARGET_BOARD/partmap_emmc.txt $TARGET_DIR
+	cp $PREBUILT_DIR/bl1-*.img $TARGET_DIR
+	cp $PREBUILT_DIR/fip-loader-*.img $TARGET_DIR
+	cp $PREBUILT_DIR/fip-secure.img $TARGET_DIR
+	cp $PREBUILT_DIR/partmap_emmc.txt $TARGET_DIR
 
 	dd conv=notrunc if=$TARGET_DIR/bl1-sdboot.img of=$IMG_NAME bs=512 seek=$BL1_OFFSET
 	dd conv=notrunc if=$TARGET_DIR/fip-loader-sd.img of=$IMG_NAME bs=512 seek=$BL2_OFFSET
