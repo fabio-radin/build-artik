@@ -6,6 +6,8 @@ FULL_BUILD=false
 VERIFIED_BOOT=false
 VBOOT_KEYDIR=
 VBOOT_ITS=
+SKIP_CLEAN=
+SKIP_FEDORA_BUILD=
 
 print_usage()
 {
@@ -20,6 +22,8 @@ print_usage()
 	echo "--vboot		Generated verified boot image"
 	echo "--vboot-keydir	Specify key directoy for verified boot"
 	echo "--vboot-its	Specify its file for verified boot"
+	echo "--skip-clean	Skip fedora local repository clean"
+	echo "--skip-fedora-build	Skip fedora build"
 	exit 0
 }
 
@@ -69,6 +73,12 @@ parse_options()
 				shift ;;
 			--vboot-its)
 				VBOOT_ITS="$2"
+				shift ;;
+			--skip-clean)
+				SKIP_CLEAN=--skip-clean
+				shift ;;
+			--skip-fedora-build)
+				SKIP_FEDORA_BUILD=--skip-build
 				shift ;;
 			*)
 				shift ;;
@@ -159,16 +169,16 @@ if $FULL_BUILD ; then
 		FEDORA_TARGET_BOARD=$TARGET_BOARD
 	fi
 
-	FEDORA_NAME=fedora-arm-$FEDORA_TARGET_BOARD-rootfs-$RELEASE_VER-$RELEASE_DATE
+	FEDORA_NAME=fedora-arm-$FEDORA_TARGET_BOARD-rootfs-$BUILD_VERSION-$BUILD_DATE
 	if [ "$FEDORA_PREBUILT_RPM_DIR" != "" ]; then
 		./build_fedora.sh -o $TARGET_DIR -b $FEDORA_TARGET_BOARD \
-			-p $FEDORA_PACKAGE_FILE -n $FEDORA_NAME \
-			-k $FEDORA_KICKSTART_FILE \
+			-p $FEDORA_PACKAGE_FILE -n $FEDORA_NAME $SKIP_CLEAN $SKIP_FEDORA_BUILD \
+			-k fedora-arm-${FEDORA_TARGET_BOARD}.ks \
 			-r $FEDORA_PREBUILT_RPM_DIR
 	else
 		./build_fedora.sh -o $TARGET_DIR -b $FEDORA_TARGET_BOARD \
-			-p $FEDORA_PACKAGE_FILE -n $FEDORA_NAME \
-			-k $FEDORA_KICKSTART_FILE
+			-p $FEDORA_PACKAGE_FILE -n $FEDORA_NAME $SKIP_CLEAN $SKIP_FEDORA_BUILD \
+			-k fedora-arm-${FEDORA_TARGET_BOARD}.ks
 	fi
 
 	MD5_SUM=$(md5sum $TARGET_DIR/${FEDORA_NAME}.tar.gz | awk '{print $1}')

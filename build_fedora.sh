@@ -20,6 +20,8 @@ print_usage()
 	echo "-r		Prebuilt rpm directory"
 	echo "-k		Kickstart file"
 	echo "-K		Kickstart directory"
+	echo "--skip-build	Skip package build"
+	echo "--skip-clean	Skip local repository clean-up"
 	exit 0
 }
 
@@ -31,26 +33,29 @@ parse_options()
 			-h|--help)
 				print_usage
 				shift ;;
-			-o)
-				TARGET_DIR="$2"
-				shift ;;
-			-b)
-				TARGET_BOARD="$2"
-				shift ;;
-			-p)
-				TARGET_PACKAGE="$2"
-				shift ;;
 			-n)
 				FEDORA_NAME="$2"
 				shift ;;
+			-o)
+				TARGET_DIR=`readlink -e "$2"`
+				shift ;;
+			-p)
+				TARGET_PACKAGE=`readlink -e "$2"`
+				shift ;;
 			-r)
-				PREBUILT_RPM_DIR="$2"
+				PREBUILT_RPM_DIR=`readlink -e "$2"`
 				shift ;;
 			-k)
 				KICKSTART_FILE="$2"
 				shift ;;
 			-K)
-				KICKSTART_DIR="$2"
+				KICKSTART_DIR=`readlink -e "$2"`
+				shift ;;
+			--skip-build)
+				SKIP_BUILD=true
+				shift ;;
+			--skip-clean)
+				SKIP_CLEAN=true
 				shift ;;
 			*)
 				shift ;;
@@ -66,10 +71,10 @@ package_check()
 build_package()
 {
 	local pkg=$1
-	local target_board=$2
 
-	pushd ../$pkg
-	fed-artik-build --define "TARGET $target_board"
+	pushd $TOP_DIR/$pkg
+	echo "Build $pkg.."
+	fed-artik-build
 	popd
 }
 
@@ -79,17 +84,24 @@ parse_options "$@"
 
 FEDORA_PACKAGES=`cat $TARGET_PACKAGE`
 
-echo "Clean up local repository..."
-fed-artik-build --clean-repos-and-exit
+if ! $SKIP_CLEAN; then
+	echo "Clean up local repository..."
+	fed-artik-build --clean-repos-and-exit
+fi
 
 if [ "$PREBUILT_RPM_DIR" != "" ]; then
+	echo "Copy prebuilt rpms into prebuilt directory"
 	fed-artik-creator --copy-rpm-dir $PREBUILT_RPM_DIR
 fi
 
-for pkg in $FEDORA_PACKAGES
-do
-	build_package $pkg $TARGET_BOARD
-done
+if ! $SKIP_BUILD; then
+	for pkg in $FEDORA_PACKAGES
+	do
+		build_package $pkg
+	done
+fi
+
+fed-artik-creator --copy-rpm-dir $KICKSTART_DIR/prebuilt
 
 if [ "$FEDORA_NAME" != "" ]; then
 	fed-artik-creator --copy-kickstart-dir $KICKSTART_DIR \
@@ -99,3 +111,5 @@ else
 	fed-artik-creator --copy-kickstart-dir $KICKSTART_DIR \
 		--ks-file $KICKSTART_DIR/$KICKSTART_FILE -o $TARGET_DIR
 fi
+
+echo "A new fedora image has been created"
