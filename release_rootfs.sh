@@ -4,7 +4,7 @@ set -e
 
 CHECK_COUNT=0
 MAX_RETRY=3
-SERVER_URL="http://artik:artik%40iot@59.13.55.140/downloads/artik/fedora"
+SERVER_URL=="http://artik:artik%40iot@agit.artik.io:8080/downloads/artik/fedora"
 DOWNLOAD_DONE=false
 
 print_usage()
