@@ -7,6 +7,8 @@ TARGET_BOARD=
 TARGET_PACKAGE=
 FEDORA_NAME=
 PREBUILT_RPM_DIR=
+SKIP_BUILD=false
+SKIP_CLEAN=false
 KICKSTART_FILE=../spin-kickstarts/fedora-arm-artik.ks
 KICKSTART_DIR=../spin-kickstarts
 
@@ -72,7 +74,7 @@ build_package()
 {
 	local pkg=$1
 
-	pushd $TOP_DIR/$pkg
+	pushd ../$pkg
 	echo "Build $pkg.."
 	fed-artik-build
 	popd
