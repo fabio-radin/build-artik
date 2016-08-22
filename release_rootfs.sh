@@ -5,6 +5,7 @@ set -e
 CHECK_COUNT=0
 MAX_RETRY=3
 SERVER_URL="http://artik:artik%40iot@59.13.55.140/downloads/artik/fedora"
+DOWNLOAD_DONE=false
 
 print_usage()
 {
@@ -29,6 +30,11 @@ parse_options()
 			-s)
 				SERVER_URL="$2"
 				shift ;;
+			-f)
+				ROOTFS_FILE="$2"
+				shift ;;
+			*)
+				shift ;;
 		esac
 	done
 }
@@ -52,20 +58,35 @@ fi
 
 test -d ${TARGET_DIR} || mkdir -p ${TARGET_DIR}
 
-if [ ! -f $PREBUILT_DIR/$ROOTFS_FILE ]; then
-	echo "Not found rootfs. Just download it"
-	wget ${SERVER_URL}/$ROOTFS_FILE -O $PREBUILT_DIR/$ROOTFS_FILE
-fi
+download_rootfs_file()
+{
+	if [ "$BUILD_VERSION" != "" ] && [ "$BUILD_DATE" != "" ]; then
+		ROOTFS_PREFIX=fedora-arm-$TARGET_BOARD-rootfs-$RELEASE_VER-$RELEASE_DATE
+	else
+		ROOTFS_PREFIX=fedora-arm-$TARGET_BOARD-rootfs-latest
+	fi
+
+	pushd prebuilt
+	wget -r -l1 -np -nH -nd -nc ${SERVER_URL} -P . -A "${ROOTFS_PREFIX}-*.tar.gz"
+	ROOTFS_NAME=`ls ${ROOTFS_PREFIX}-*.tar.gz`
+	ROOTFS_MD5_PRE="${ROOTFS_NAME#$ROOTFS_PREFIX-*}"
+	ROOTFS_MD5="${ROOTFS_NAME%%.tar.gz}"
+
+	MD5_SUM=$(md5sum $ROOTFS_FILE | awk '{print $1}')
+	if [ "$ROOTFS_FILE_MD5" == "$MD5_SUM" ]; then
+		DOWNLOAD_DONE=true
+	fi
+	popd
+}
 
 while :
 do
-	MD5_SUM=$(md5sum $PREBUILT_DIR/$ROOTFS_FILE | awk '{print $1}')
-	if [ "$ROOTFS_FILE_MD5" == "$MD5_SUM" ]; then
+	download_rootfs_file
+	if $DOWNLOAD_DONE; then
 		break
 	fi
 
 	echo "Mismatch MD5 hash. Just download again"
-	wget ${SERVER_URL}/$ROOTFS_FILE -O $PREBUILT_DIR/$ROOTFS_FILE
 
 	CHECK_COUNT=$((CHECK_COUNT + 1))
 
@@ -74,4 +95,4 @@ do
 	fi
 done
 
-cp $PREBUILT_DIR/$ROOTFS_FILE $TARGET_DIR/rootfs.tar.gz
+cp prebuilt/$ROOTFS_NAME $TARGET_DIR/rootfs.tar.gz
