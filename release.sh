@@ -54,10 +54,10 @@ parse_options()
 				BUILD_DATE="$2"
 				shift ;;
 			-m|--microsd)
-				MICROSD_IMAGE="1"
+				MICROSD_IMAGE=-m
 				shift ;;
 			-u|--url)
-				SERVER_URL="$2"
+				SERVER_URL="-s $2"
 				shift ;;
 			--full-build)
 				FULL_BUILD=true
@@ -119,13 +119,11 @@ then
 	. $CONFIG_FILE
 fi
 
-if [ "$BUILD_DATE" == "" ]
-then
+if [ "$BUILD_DATE" == "" ]; then
 	BUILD_DATE=`date +"%Y%m%d.%H%M%S"`
 fi
 
-if [ "$BUILD_VERSION" == "" ]
-then
+if [ "$BUILD_VERSION" == "" ]; then
 	BUILD_VERSION=UNRELEASED
 fi
 
@@ -154,11 +152,7 @@ if $VERIFIED_BOOT ; then
 	./mkvboot.sh $TARGET_DIR $VBOOT_KEYDIR $VBOOT_ITS
 fi
 
-if [ "$MICROSD_IMAGE" == "1" ]; then
-	./mksdboot.sh -m
-else
-	./mksdboot.sh
-fi
+./mksdboot.sh $MICROSD_IMAGE
 
 ./mkbootimg.sh
 
@@ -171,15 +165,12 @@ if $FULL_BUILD ; then
 
 	FEDORA_NAME=fedora-arm-$FEDORA_TARGET_BOARD-rootfs-$BUILD_VERSION-$BUILD_DATE
 	if [ "$FEDORA_PREBUILT_RPM_DIR" != "" ]; then
-		./build_fedora.sh -o $TARGET_DIR -b $FEDORA_TARGET_BOARD \
-			-p $FEDORA_PACKAGE_FILE -n $FEDORA_NAME $SKIP_CLEAN $SKIP_FEDORA_BUILD \
-			-k fedora-arm-${FEDORA_TARGET_BOARD}.ks \
-			-r $FEDORA_PREBUILT_RPM_DIR
-	else
-		./build_fedora.sh -o $TARGET_DIR -b $FEDORA_TARGET_BOARD \
-			-p $FEDORA_PACKAGE_FILE -n $FEDORA_NAME $SKIP_CLEAN $SKIP_FEDORA_BUILD \
-			-k fedora-arm-${FEDORA_TARGET_BOARD}.ks
+		PREBUILD_ADD_CMD="-r $FEDORA_PREBUILT_RPM_DIR"
 	fi
+	./build_fedora.sh -o $TARGET_DIR -b $FEDORA_TARGET_BOARD \
+		-p $FEDORA_PACKAGE_FILE -n $FEDORA_NAME $SKIP_CLEAN $SKIP_FEDORA_BUILD \
+		-k fedora-arm-${FEDORA_TARGET_BOARD}.ks \
+		$PREBUILD_ADD_CMD
 
 	MD5_SUM=$(md5sum $TARGET_DIR/${FEDORA_NAME}.tar.gz | awk '{print $1}')
 	FEDORA_TARBALL=${FEDORA_NAME}-${MD5_SUM}.tar.gz
@@ -187,17 +178,13 @@ if $FULL_BUILD ; then
 	cp $TARGET_DIR/$FEDORA_TARBALL $TARGET_DIR/rootfs.tar.gz
 else
 	if [ "$LOCAL_ROOTFS" == "" ]; then
-		./release_rootfs.sh $SERVER_URL
+		./release_rootfs.sh -b $TARGET_BOARD $SERVER_URL
 	else
 		cp $LOCAL_ROOTFS $TARGET_DIR/rootfs.tar.gz
 	fi
 fi
 
-if [ "$MICROSD_IMAGE" == "1" ]; then
-	./mksdfuse.sh -m
-else
-	./mksdfuse.sh
-fi
+./mksdfuse.sh $MICROSD_IMAGE
 
 ./mkrootfs_image.sh $TARGET_DIR
 
