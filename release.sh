@@ -159,7 +159,7 @@ if $FULL_BUILD ; then
 		FEDORA_TARGET_BOARD=$TARGET_BOARD
 	fi
 
-	FEDORA_NAME=fedora-arm-artik-rootfs-$RELEASE_VER-$RELEASE_DATE
+	FEDORA_NAME=fedora-arm-$FEDORA_TARGET_BOARD-rootfs-$RELEASE_VER-$RELEASE_DATE
 	if [ "$FEDORA_PREBUILT_RPM_DIR" != "" ]; then
 		./build_fedora.sh -o $TARGET_DIR -b $FEDORA_TARGET_BOARD \
 			-p $FEDORA_PACKAGE_FILE -n $FEDORA_NAME \
@@ -171,7 +171,9 @@ if $FULL_BUILD ; then
 			-k $FEDORA_KICKSTART_FILE
 	fi
 
-	FEDORA_TARBALL=${FEDORA_NAME}.tar.gz
+	MD5_SUM=$(md5sum $TARGET_DIR/${FEDORA_NAME}.tar.gz | awk '{print $1}')
+	FEDORA_TARBALL=${FEDORA_NAME}-${MD5_SUM}.tar.gz
+	mv $TARGET_DIR/${FEDORA_NAME}.tar.gz $TARGET_DIR/$FEDORA_TARBALL
 	cp $TARGET_DIR/$FEDORA_TARBALL $TARGET_DIR/rootfs.tar.gz
 else
 	if [ "$LOCAL_ROOTFS" == "" ]; then
