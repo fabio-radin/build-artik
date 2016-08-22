@@ -188,9 +188,9 @@ fi
 
 ./mkrootfs_image.sh $TARGET_DIR
 
-if [ -e $PREBUILT_DIR/$TARGET_BOARD/flash_all_by_fastboot.sh ]; then
-	cp $PREBUILT_DIR/$TARGET_BOARD/flash_all_by_fastboot.sh $TARGET_DIR
-	cp $PREBUILT_DIR/$TARGET_BOARD/partition.txt $TARGET_DIR
+if [ -e $PREBUILT_DIR/flash_all_by_fastboot.sh ]; then
+	cp $PREBUILT_DIR/flash_all_by_fastboot.sh $TARGET_DIR
+	cp $PREBUILT_DIR/partition.txt $TARGET_DIR
 else
 	cp flash_all_by_fastboot.sh $TARGET_DIR
 fi
