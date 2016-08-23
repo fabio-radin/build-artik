@@ -112,6 +112,27 @@ gen_fip_image()
 	fi
 }
 
+gen_hash_rsa() {
+	local in_img=${1}
+	local hash_name=${2}
+	local private_key=${3}
+
+	${RSA_SIGN_TOOL} ${private_key} ${in_img}
+
+	# <output>
+	#     ${input_file}.sig
+	#     ${input_file}.pub
+}
+
+write_hash_rsa() {
+	img=${1}
+	pub=${2}
+	sig=${3}
+
+	dd if=${pub} of=${img} conv=notrunc ibs=256 count=1 obs=256 seek=2
+	dd if=${sig} of=${img} conv=notrunc ibs=256 count=1 obs=256 seek=3
+}
+
 gen_nexell_image()
 {
 	local chip_name=$(echo -n ${CHIP_NAME} | awk '{print toupper($0)}')
@@ -119,6 +140,7 @@ gen_nexell_image()
 		nsih_name=raptor-64.txt
 		input_file=fip-nonsecure.bin
 		output_file=fip-nonsecure.img
+		hash_file=fip-nonsecure.bin.hash
 	else
 		return 0
 	fi
@@ -129,6 +151,51 @@ gen_nexell_image()
 		-i $TARGET_DIR/${input_file} \
 		-o $TARGET_DIR/${output_file} \
 		-l $FIP_LOAD_ADDR -e 0x00000000
+
+
+	if [ "$SECURE_BOOT" == "enable" ]; then
+		if [ "$CHIP_NAME" == "s5p6818" ]; then
+			gen_hash_rsa $TARGET_DIR/${input_file} \
+					$TARGET_DIR/${hash_file} ${PRIVATE_KEY}
+
+			write_hash_rsa $TARGET_DIR/${output_file} \
+								/dev/null $TARGET_DIR/${input_file}.sig
+		fi
+
+		rm -rf $TARGET_DIR/${input_file}.pub
+		rm -rf $TARGET_DIR/${input_file}.sig
+		rm -rf $TARGET_DIR/${hash_file}
+	fi
+}
+
+gen_nexell_image_secure()
+{
+	local chip_name=$(echo -n ${CHIP_NAME} | awk '{print toupper($0)}')
+	if [ "$CHIP_NAME" == "s5p6818" ]; then
+		nsih_name=raptor-64.txt
+		input_file=fip-secure.bin
+		output_file=fip-secure.img
+		hash_file=fip-secure.bin.hash
+
+		$UBOOT_DIR/output/tools/nexell/SECURE_BINGEN \
+			-c $chip_name -t 3rdboot \
+			-n $UBOOT_DIR/tools/nexell/nsih/${nsih_name} \
+			-i $PREBUILT_DIR/${input_file} \
+			-o $PREBUILT_DIR/${output_file} \
+			-l $FIP_SEC_LOAD_ADDR -e 0x00000000
+
+        gen_hash_rsa $PREBUILT_DIR/${input_file} \
+				$PREBUILT_DIR/${hash_file} ${PRIVATE_KEY}
+
+		write_hash_rsa $PREBUILT_DIR/${output_file} \
+							/dev/null $PREBUILT_DIR/${input_file}.sig
+
+		rm -rf $PREBUILT_DIR/${input_file}.pub
+		rm -rf $PREBUILT_DIR/${input_file}.sig
+		rm -rf $PREBUILT_DIR/${hash_file}
+	else
+		return 0
+	fi
 }
 
 trap 'error ${LINENO} ${?}' ERR
@@ -156,6 +223,9 @@ gen_envs
 install_output
 gen_fip_image
 gen_nexell_image
+if [ "$SECURE_BOOT" == "enable" ]; then
+	gen_nexell_image_secure
+fi
 gen_version_info
 
 popd
