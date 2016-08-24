@@ -199,6 +199,10 @@ if [ -e $PREBUILT_DIR/$TARGET_BOARD/u-boot-recovery.bin ]; then
 	cp $PREBUILT_DIR/$TARGET_BOARD/u-boot-recovery.bin $TARGET_DIR
 fi
 
+if [ "$BUILD_VERSION" != "UNRELEASED" ]; then
+	./release_bsp_source.sh -b $TARGET_BOARD -v $BUILD_VERSION -d $BUILD_DATE
+fi
+
 ls -al $TARGET_DIR
 
 echo "ARTIK release information"
