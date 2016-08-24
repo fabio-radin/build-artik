@@ -160,6 +160,8 @@ install_output()
 	sync;sync
 	sudo umount mnt
 	sudo kpartx -d ${IMG_NAME}
+
+	rm -rf mnt
 }
 
 pushd ${TARGET_DIR}

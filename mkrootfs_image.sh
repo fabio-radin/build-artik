@@ -29,4 +29,6 @@ sudo umount $TARGET_DIR/rootfs
 e2fsck -y -f $TARGET_DIR/rootfs.img
 resize2fs -f $TARGET_DIR/rootfs.img ${TOTAL_SZ}M
 
+rm -rf rootfs
+
 ls -al $TARGET_DIR/rootfs.img
