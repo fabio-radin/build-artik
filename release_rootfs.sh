@@ -67,8 +67,17 @@ download_rootfs_file()
 	fi
 
 	pushd prebuilt
-	wget -r -l1 -np -nH -nd -nc ${SERVER_URL} -P . -A "${ROOTFS_PREFIX}-*.tar.gz"
-	ROOTFS_NAME=`ls ${ROOTFS_PREFIX}-*.tar.gz`
+	ROOTFS_NAME=`curl -s ${SERVER_URL} --list-only | \
+		sed -n 's%.*href="\([^.]*\.tar\.gz\)".*%\n\1%; ta; b; :a; s%.*\n%%; p' | grep "${ROOTFS_PREFIX}"` || true
+
+	if [ "$ROOTFS_NAME" == "" ]; then
+		ROOTFS_PREFIX=fedora-arm-$TARGET_BOARD-rootfs-latest
+		ROOTFS_NAME=`curl -s ${SERVER_URL} --list-only | \
+			sed -n 's%.*href="\([^.]*\.tar\.gz\)".*%\n\1%; ta; b; :a; s%.*\n%%; p' | grep "${ROOTFS_PREFIX}"` || true
+	fi
+
+	wget -nc ${SERVER_URL}${ROOTFS_NAME}
+
 	ROOTFS_MD5_PRE="${ROOTFS_NAME#$ROOTFS_PREFIX-*}"
 	ROOTFS_MD5="${ROOTFS_MD5_PRE%%.tar.gz}"
 
