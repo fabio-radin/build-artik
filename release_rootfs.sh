@@ -68,12 +68,12 @@ download_rootfs_file()
 
 	pushd prebuilt
 	ROOTFS_NAME=`curl -s ${SERVER_URL} --list-only | \
-		sed -n 's%.*href="\([^.]*\.tar\.gz\)".*%\n\1%; ta; b; :a; s%.*\n%%; p' | grep "${ROOTFS_PREFIX}"` || true
+		grep "${ROOTFS_PREFIX}" | sed 's/^.*a href=\"\([^"]*\)".*/\1/'` || true
 
 	if [ "$ROOTFS_NAME" == "" ]; then
 		ROOTFS_PREFIX=fedora-arm-$TARGET_BOARD-rootfs-latest
 		ROOTFS_NAME=`curl -s ${SERVER_URL} --list-only | \
-			sed -n 's%.*href="\([^.]*\.tar\.gz\)".*%\n\1%; ta; b; :a; s%.*\n%%; p' | grep "${ROOTFS_PREFIX}"` || true
+			grep "${ROOTFS_PREFIX}" | sed 's/^.*a href=\"\([^"]*\)".*/\1/'` || true
 	fi
 
 	wget -nc ${SERVER_URL}${ROOTFS_NAME}
