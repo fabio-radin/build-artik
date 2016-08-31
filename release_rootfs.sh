@@ -10,7 +10,7 @@ DOWNLOAD_DONE=false
 print_usage()
 {
 	echo "-h/--help         Show help options"
-	echo "-b [TARGET_BOARD]	Target board ex) -b artik710|artik5|artik10"
+	echo "-b [TARGET_BOARD]	Target board ex) -b artik710|artik530|artik5|artik10"
 	echo "-s [SERVER_URL]	Server URL to download the rootfs"
 
 	exit 0

@@ -10,7 +10,7 @@ package_check()
 print_usage()
 {
 	echo "-h/--help         Show help options"
-	echo "-b [TARGET_BOARD]	Target board ex) -b artik710|artik5|artik10"
+	echo "-b [TARGET_BOARD]	Target board ex) -b artik710|artik530|artik5|artik10"
 
 	exit 0
 }

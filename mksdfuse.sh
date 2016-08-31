@@ -8,7 +8,7 @@ SDBOOT_IMAGE=false
 print_usage()
 {
 	echo "-h/--help         Show help options"
-	echo "-b [TARGET_BOARD]	Target board ex) -b artik710|artik5|artik10"
+	echo "-b [TARGET_BOARD]	Target board ex) -b artik710|artik530|artik5|artik10"
 	echo "-m		Generate sd boot image"
 
 	exit 0
@@ -138,18 +138,26 @@ install_output()
 		sudo su -c "sed -i 's/mmcblk0p/mmcblk1p/g' mnt/etc/fstab"
 		sudo su -c "cp artik_release mnt/etc/"
 	else
-		if [ "$CHIP_NAME" == "s5p6818" ]; then
+		case "$CHIP_NAME" in
+		s5p6818)
 			sudo su -c "cp $TARGET_DIR/bl1-emmcboot.img mnt"
 			sudo su -c "cp $TARGET_DIR/fip-loader-emmc.img mnt"
 			sudo su -c "cp $TARGET_DIR/fip-secure.img mnt"
 			sudo su -c "cp $TARGET_DIR/fip-nonsecure.img mnt"
 			sudo su -c "cp $TARGET_DIR/partmap_emmc.txt mnt"
-		else
+			;;
+		s5p4418)
+			sudo su -c "cp $TARGET_DIR/bl1-emmcboot.img mnt"
+			sudo su -c "cp $TARGET_DIR/bootloader.img mnt"
+			sudo su -c "cp $TARGET_DIR/partmap_emmc.txt mnt"
+			;;
+		*)
 			sudo su -c "cp $TARGET_DIR/bl1.bin mnt"
 			sudo su -c "cp $TARGET_DIR/bl2.bin mnt"
 			sudo su -c "cp $TARGET_DIR/u-boot.bin mnt"
 			sudo su -c "cp $TARGET_DIR/tzsw.bin mnt"
-		fi
+			;;
+		esac
 
 		sudo su -c "cp $TARGET_DIR/params.bin mnt"
 		sudo su -c "cp $TARGET_DIR/boot.img mnt"

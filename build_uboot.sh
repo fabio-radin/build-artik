@@ -5,7 +5,7 @@ set -e
 print_usage()
 {
 	echo "-h/--help         Show help options"
-	echo "-b [TARGET_BOARD]	Target board ex) -b artik710|artik5|artik10"
+	echo "-b [TARGET_BOARD]	Target board ex) -b artik710|artik530|artik5|artik10"
 
 	exit 0
 }
@@ -136,21 +136,32 @@ write_hash_rsa() {
 gen_nexell_image()
 {
 	local chip_name=$(echo -n ${CHIP_NAME} | awk '{print toupper($0)}')
-	if [ "$CHIP_NAME" == "s5p6818" ]; then
-		nsih_name=raptor-64.txt
-		input_file=fip-nonsecure.bin
-		output_file=fip-nonsecure.img
-		hash_file=fip-nonsecure.bin.hash
-	else
-		return 0
-	fi
+	case "$CHIP_NAME" in
+		s5p6818)
+			nsih_name=raptor-64.txt
+			input_file=fip-nonsecure.bin
+			output_file=fip-nonsecure.img
+			hash_file=fip-nonsecure.bin.hash
+			gen_tool=SECURE_BINGEN
+			launch_addr=0x00000000
+			;;
+		s5p4418)
+			nsih_name=raptor-emmc.txt
+			input_file=u-boot.bin
+			output_file=$UBOOT_IMAGE
+			gen_tool=BOOT_BINGEN
+			launch_addr=$FIP_LOAD_ADDR
+			;;
+		*)
+			return 0 ;;
+	esac
 
-	$UBOOT_DIR/output/tools/nexell/SECURE_BINGEN \
+	$UBOOT_DIR/output/tools/nexell/${gen_tool} \
 		-c $chip_name -t 3rdboot \
 		-n $UBOOT_DIR/tools/nexell/nsih/${nsih_name} \
 		-i $TARGET_DIR/${input_file} \
 		-o $TARGET_DIR/${output_file} \
-		-l $FIP_LOAD_ADDR -e 0x00000000
+		-l $FIP_LOAD_ADDR -e ${launch_addr}
 
 
 	if [ "$SECURE_BOOT" == "enable" ]; then
@@ -159,7 +170,7 @@ gen_nexell_image()
 					$TARGET_DIR/${hash_file} ${PRIVATE_KEY}
 
 			write_hash_rsa $TARGET_DIR/${output_file} \
-								/dev/null $TARGET_DIR/${input_file}.sig
+					/dev/null $TARGET_DIR/${input_file}.sig
 		fi
 
 		rm -rf $TARGET_DIR/${input_file}.pub
@@ -188,7 +199,7 @@ gen_nexell_image_secure()
 				$PREBUILT_DIR/${hash_file} ${PRIVATE_KEY}
 
 		write_hash_rsa $PREBUILT_DIR/${output_file} \
-							/dev/null $PREBUILT_DIR/${input_file}.sig
+				/dev/null $PREBUILT_DIR/${input_file}.sig
 
 		rm -rf $PREBUILT_DIR/${input_file}.pub
 		rm -rf $PREBUILT_DIR/${input_file}.sig

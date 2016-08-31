@@ -8,7 +8,7 @@ BUILD_DATE=`date +"%Y%m%d.%H%M%S"`
 print_usage()
 {
 	echo "-h/--help         Show help options"
-	echo "-b [TARGET_BOARD]	Target board ex) -b artik710|artik5|artik10"
+	echo "-b [TARGET_BOARD]	Target board ex) -b artik710|artik530|artik5|artik10"
 	echo "-v/--fullver      Pass full version name like: -v A50GC0E-3AF-01030"
 
 	exit 0
