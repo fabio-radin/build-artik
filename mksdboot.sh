@@ -62,9 +62,9 @@ s5p4418_sdboot_gen()
 
 exynos_sdboot_gen()
 {
-	cp $PREBUILT_DIR/$TARGET_BOARD/bl1.bin $TARGET_DIR/
+	cp $PREBUILT_DIR/bl1.bin $TARGET_DIR/
 	cp $TARGET_DIR/$UBOOT_SPL $TARGET_DIR/bl2.bin
-	cp $PREBUILT_DIR/$TARGET_BOARD/tzsw.bin $TARGET_DIR/
+	cp $PREBUILT_DIR/tzsw.bin $TARGET_DIR/
 
 	dd conv=notrunc if=$TARGET_DIR/bl1.bin of=$IMG_NAME bs=512 seek=$BL1_OFFSET
 	dd conv=notrunc if=$TARGET_DIR/bl2.bin of=$IMG_NAME bs=512 seek=$BL2_OFFSET
@@ -99,9 +99,9 @@ case "$CHIP_NAME" in
 		test -e $PREBUILT_DIR/bl1-sdboot.img || die
 		;;
 	*)
-		test -e $PREBUILT_DIR/$TARGET_BOARD/bl1.bin || die
+		test -e $PREBUILT_DIR/bl1.bin || die
 		test -e $TARGET_DIR/$UBOOT_SPL || die
-		test -e $PREBUILT_DIR/$TARGET_BOARD/tzsw.bin || die
+		test -e $PREBUILT_DIR/tzsw.bin || die
 		;;
 esac
 
