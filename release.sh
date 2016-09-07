@@ -4,6 +4,7 @@ set -e
 
 FULL_BUILD=false
 VERIFIED_BOOT=false
+SECURE_BOOT=false
 VBOOT_KEYDIR=
 VBOOT_ITS=
 SKIP_CLEAN=
@@ -64,6 +65,9 @@ parse_options()
 				shift ;;
 			--local-rootfs)
 				LOCAL_ROOTFS="$2"
+				shift ;;
+			--sboot)
+				SECURE_BOOT=true
 				shift ;;
 			--vboot)
 				VERIFIED_BOOT=true
@@ -144,13 +148,17 @@ gen_artik_release
 
 if $VERIFIED_BOOT ; then
 	if [ "$VBOOT_ITS" == "" ]; then
-		VBOOT_ITS=$PREBUILT_DIR/$TARGET_BOARD/kernel_fit_verify.its
+		VBOOT_ITS=$PREBUILT_DIR/kernel_fit_verify.its
 	fi
 	if [ "$VBOOT_KEYDIR" == "" ]; then
 		echo "Please specify key directory using --vboot-keydir"
 		exit 0
 	fi
 	./mkvboot.sh $TARGET_DIR $VBOOT_KEYDIR $VBOOT_ITS
+fi
+
+if $SECURE_BOOT ; then
+	./mksboot.sh $TARGET_DIR
 fi
 
 ./mksdboot.sh $MICROSD_IMAGE
