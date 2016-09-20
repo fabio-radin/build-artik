@@ -10,6 +10,7 @@ VBOOT_ITS=
 SKIP_CLEAN=
 SKIP_FEDORA_BUILD=
 BUILD_CONF=
+PREBUILT_VBOOT_DIR=
 
 print_usage()
 {
@@ -27,6 +28,7 @@ print_usage()
 	echo "--vboot-its	Specify its file for verified boot"
 	echo "--skip-clean	Skip fedora local repository clean"
 	echo "--skip-fedora-build	Skip fedora build"
+	echo "--prebuilt-vboot	Specify prebuilt directory path for vboot"
 	exit 0
 }
 
@@ -89,6 +91,9 @@ parse_options()
 			--skip-fedora-build)
 				SKIP_FEDORA_BUILD=--skip-build
 				shift ;;
+			--prebuilt-vboot)
+				PREBUILT_VBOOT_DIR=`readlink -e "$2"`
+				shift ;;
 			*)
 				shift ;;
 		esac
@@ -148,18 +153,22 @@ mkdir -p $TARGET_DIR
 
 gen_artik_release
 
-./build_uboot.sh
-./build_kernel.sh
+if [ "$PREBUILT_VBOOT_DIR" == "" ]; then
+	./build_uboot.sh
+	./build_kernel.sh
 
-if $VERIFIED_BOOT ; then
-	if [ "$VBOOT_ITS" == "" ]; then
-		VBOOT_ITS=$PREBUILT_DIR/kernel_fit_verify.its
+	if $VERIFIED_BOOT ; then
+		if [ "$VBOOT_ITS" == "" ]; then
+			VBOOT_ITS=$PREBUILT_DIR/kernel_fit_verify.its
+		fi
+		if [ "$VBOOT_KEYDIR" == "" ]; then
+			echo "Please specify key directory using --vboot-keydir"
+			exit 0
+		fi
+		./mkvboot.sh $TARGET_DIR $VBOOT_KEYDIR $VBOOT_ITS
 	fi
-	if [ "$VBOOT_KEYDIR" == "" ]; then
-		echo "Please specify key directory using --vboot-keydir"
-		exit 0
-	fi
-	./mkvboot.sh $TARGET_DIR $VBOOT_KEYDIR $VBOOT_ITS
+else
+	find $PREBUILT_VBOOT_DIR -maxdepth 1 -type f -exec cp -t $TARGET_DIR {} +
 fi
 
 if $SECURE_BOOT ; then
@@ -204,7 +213,7 @@ fi
 
 if [ -e $PREBUILT_DIR/flash_all_by_fastboot.sh ]; then
 	cp $PREBUILT_DIR/flash_all_by_fastboot.sh $TARGET_DIR
-	cp $PREBUILT_DIR/partition.txt $TARGET_DIR
+	[ -e $PREBUILT_DIR/partition.txt ] && cp $PREBUILT_DIR/partition.txt $TARGET_DIR
 else
 	cp flash_all_by_fastboot.sh $TARGET_DIR
 fi
