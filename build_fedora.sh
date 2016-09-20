@@ -89,7 +89,7 @@ package_check fed-artik-creator
 
 parse_options "$@"
 
-if [ "BUILDCONFIG" != "" ]; then
+if [ "$BUILDCONFIG" != "" ]; then
 	BUILD_CONF="-C $BUILDCONFIG"
 else
 	BUILD_CONF=""
@@ -114,7 +114,7 @@ if ! $SKIP_BUILD; then
 	done
 fi
 
-fed-artik-creator --copy-rpm-dir $KICKSTART_DIR/prebuilt
+fed-artik-creator $BUILD_CONF --copy-rpm-dir $KICKSTART_DIR/prebuilt
 
 if [ "$FEDORA_NAME" != "" ]; then
 	fed-artik-creator $BUILD_CONF --copy-kickstart-dir $KICKSTART_DIR \
