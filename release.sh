@@ -26,6 +26,7 @@ print_usage()
 	echo "--vboot		Generated verified boot image"
 	echo "--vboot-keydir	Specify key directoy for verified boot"
 	echo "--vboot-its	Specify its file for verified boot"
+	echo "--sboot		Generated signed boot image"
 	echo "--skip-clean	Skip fedora local repository clean"
 	echo "--skip-fedora-build	Skip fedora build"
 	echo "--prebuilt-vboot	Specify prebuilt directory path for vboot"
