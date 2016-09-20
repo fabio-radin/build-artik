@@ -9,6 +9,7 @@ VBOOT_KEYDIR=
 VBOOT_ITS=
 SKIP_CLEAN=
 SKIP_FEDORA_BUILD=
+BUILD_CONF=
 
 print_usage()
 {
@@ -18,6 +19,7 @@ print_usage()
 	echo "-d/--date		Release date: -d 20150911.112204"
 	echo "-m/--microsd	Make a microsd bootable image"
 	echo "-u/--url		Specify an url for downloading rootfs"
+	echo "-C		fed-artik-build configuration file"
 	echo "--full-build	Full build with generating fedora rootfs"
 	echo "--local-rootfs	Copy fedora rootfs from local file instead of downloading"
 	echo "--vboot		Generated verified boot image"
@@ -59,6 +61,9 @@ parse_options()
 				shift ;;
 			-u|--url)
 				SERVER_URL="-s $2"
+				shift ;;
+			-C)
+				BUILD_CONF="-C $2"
 				shift ;;
 			--full-build)
 				FULL_BUILD=true
@@ -176,7 +181,7 @@ if $FULL_BUILD ; then
 	if [ "$FEDORA_PREBUILT_RPM_DIR" != "" ]; then
 		PREBUILD_ADD_CMD="-r $FEDORA_PREBUILT_RPM_DIR"
 	fi
-	./build_fedora.sh -o $TARGET_DIR -b $FEDORA_TARGET_BOARD \
+	./build_fedora.sh $BUILD_CONF -o $TARGET_DIR -b $FEDORA_TARGET_BOARD \
 		-p $FEDORA_PACKAGE_FILE -n $FEDORA_NAME $SKIP_CLEAN $SKIP_FEDORA_BUILD \
 		-k fedora-arm-${FEDORA_TARGET_BOARD}.ks \
 		$PREBUILD_ADD_CMD
