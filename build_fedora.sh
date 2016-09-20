@@ -121,7 +121,7 @@ if [ "$FEDORA_NAME" != "" ]; then
 		--ks-file $KICKSTART_DIR/$KICKSTART_FILE -o $TARGET_DIR \
 		--output-file $FEDORA_NAME
 else
-	fed-artik-creator --copy-kickstart-dir $KICKSTART_DIR \
+	fed-artik-creator $BUILD_CONF --copy-kickstart-dir $KICKSTART_DIR \
 		--ks-file $KICKSTART_DIR/$KICKSTART_FILE -o $TARGET_DIR
 fi
 
