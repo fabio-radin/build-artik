@@ -7,11 +7,21 @@ print_usage() {
 	usage: ${0##*/}
 
 	-h              Print this help message
+	-o [OUTPUT_DIR]	Output directory
 	-b [TARGET_BOARD]	Target board ex) -b artik5 | artik520s
 	--vboot-keydir	Specify key directoy for verified boot
 	--vboot-its	Specify its file for verified boot
 EOF
 	exit 0
+}
+
+error()
+{
+	JOB="$0"              # job name
+	LASTLINE="$1"         # line of error occurrence
+	LASTERR="$2"          # error code
+	echo "ERROR in ${JOB} : line ${LASTLINE} with exit code ${LASTERR}"
+	exit 1
 }
 
 parse_options()
@@ -20,7 +30,10 @@ parse_options()
 	do
 		case "$opt" in
 			-h|--help)
-				usage
+				print_usage
+				shift ;;
+			-o)
+				RESULT_DIR=`readlink -e "$2"`
 				shift ;;
 			-b)
 				TARGET_BOARD="$2"
@@ -55,6 +68,10 @@ if [ "$VBOOT_KEYDIR" == "" ]; then
 	exit 0
 fi
 
+if [ "$RESULT_DIR" != "" ]; then
+	export TARGET_DIR=$RESULT_DIR
+fi
+
 ./build_uboot.sh
 ./build_kernel.sh
 
@@ -64,4 +81,5 @@ fi
 
 ./mkvboot.sh $TARGET_DIR $VBOOT_KEYDIR $VBOOT_ITS
 
+echo "Build output: $TARGET_DIR"
 ls -1 $TARGET_DIR
