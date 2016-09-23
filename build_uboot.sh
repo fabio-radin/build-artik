@@ -98,7 +98,7 @@ gen_version_info()
 		grep "define PLAIN_VERSION" | awk -F \" '{print $2}'`
 	UBOOT_VERSION="U-Boot $PLAIN_VERSION"
 	if [ -e $TARGET_DIR/artik_release ]; then
-		sed -i "s/BUILD_UBOOT=.*/BUILD_UBOOT=${UBOOT_VERSION}/" \
+		sed -i "s/_UBOOT=.*/_UBOOT=${UBOOT_VERSION}/" \
 			$TARGET_DIR/artik_release
 	fi
 }
