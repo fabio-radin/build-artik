@@ -185,7 +185,7 @@ if $SECURE_BOOT ; then
 	./mksboot.sh $TARGET_DIR
 fi
 
-./mksdboot.sh $MICROSD_IMAGE
+./mksdboot.sh
 
 ./mkbootimg.sh
 

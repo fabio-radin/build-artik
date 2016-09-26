@@ -49,8 +49,14 @@ else
 	fi
 fi
 
+if $SDBOOT_IMAGE; then
+	SD_BOOT=sd_boot_sdboot.img
+else
+	SD_BOOT=sd_boot.img
+fi
+
 test -e $TARGET_DIR/boot.img || exit 0
-test -e $TARGET_DIR/sd_boot.img || exit 0
+test -e $TARGET_DIR/$SD_BOOT || exit 0
 test -e $TARGET_DIR/params.bin || exit 0
 test -e $TARGET_DIR/rootfs.tar.gz || exit 0
 test -e $TARGET_DIR/modules.img || exit 0
@@ -105,7 +111,7 @@ gen_image()
 	TOTAL_SZ=`expr $ROOTFS_SZ + $BOOT_SIZE + $MODULE_SIZE + 2 + $ROOTFS_GAIN`
 
 	dd if=/dev/zero of=$IMG_NAME bs=1M count=$TOTAL_SZ
-	dd conv=notrunc if=$TARGET_DIR/sd_boot.img of=$IMG_NAME bs=512
+	dd conv=notrunc if=$TARGET_DIR/$SD_BOOT of=$IMG_NAME bs=512
 	sync
 
 	repartition $IMG_NAME
