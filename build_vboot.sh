@@ -7,6 +7,7 @@ print_usage() {
 	usage: ${0##*/}
 
 	-h              Print this help message
+	-v		Pass full version name like: -v A50GC0E-3AF-01030
 	-o [OUTPUT_DIR]	Output directory
 	-b [TARGET_BOARD]	Target board ex) -b artik5 | artik520s
 	--vboot-keydir	Specify key directoy for verified boot
@@ -31,6 +32,9 @@ parse_options()
 		case "$opt" in
 			-h|--help)
 				print_usage
+				shift ;;
+			-v)
+				BUILD_VER="$2"
 				shift ;;
 			-o)
 				RESULT_DIR=`readlink -e "$2"`
@@ -71,6 +75,13 @@ fi
 if [ "$RESULT_DIR" != "" ]; then
 	export TARGET_DIR=$RESULT_DIR
 fi
+
+export BUILD_VER=$BUILD_VER
+
+echo "Clean up $TARGET_DIR"
+rm -f $TARGET_DIR/* || true
+
+[ -e $TARGET_DIR/artik_release ] || cp $PREBUILT_DIR/artik_release $TARGET_DIR
 
 ./build_uboot.sh
 ./build_kernel.sh

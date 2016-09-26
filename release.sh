@@ -108,18 +108,25 @@ package_check()
 
 gen_artik_release()
 {
-	upper_model=$(echo -n ${TARGET_BOARD} | awk '{print toupper($0)}')
 	cat > $TARGET_DIR/artik_release << __EOF__
-BUILD_VERSION=${BUILD_VERSION}
-BUILD_DATE=${BUILD_DATE}
+BUILD_VERSION=
+BUILD_DATE=
 BUILD_UBOOT=
 BUILD_KERNEL=
-MODEL=${upper_model}
+MODEL=
 WIFI_FW=${WIFI_FW}
 BT_FW=${BT_FW}
 ZIGBEE_FW=${ZIGBEE_FW}
 SE_FW=${SE_FW}
 __EOF__
+}
+
+fill_artik_release()
+{
+	upper_model=$(echo -n ${TARGET_BOARD} | awk '{print toupper($0)}')
+	sed -i "s/_VERSION=.*/_VERSION=${BUILD_VERSION}/" ${TARGET_DIR}/artik_release
+	sed -i "s/_DATE=.*/_DATE=${BUILD_DATE}/" ${TARGET_DIR}/artik_release
+	sed -i "s/MODEL=.*/MODEL=${upper_model}/" ${TARGET_DIR}/artik_release
 }
 
 trap 'error ${LINENO} ${?}' ERR
@@ -171,6 +178,8 @@ if [ "$PREBUILT_VBOOT_DIR" == "" ]; then
 else
 	find $PREBUILT_VBOOT_DIR -maxdepth 1 -type f -exec cp -t $TARGET_DIR {} +
 fi
+
+fill_artik_release
 
 if $SECURE_BOOT ; then
 	./mksboot.sh $TARGET_DIR
