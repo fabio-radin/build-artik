@@ -28,6 +28,8 @@ parse_options()
 			-m)
 				SDBOOT_IMAGE=true
 				shift ;;
+			*)
+				shift ;;
 		esac
 	done
 }
