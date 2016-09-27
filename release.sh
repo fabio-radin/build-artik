@@ -11,6 +11,7 @@ SKIP_CLEAN=
 SKIP_FEDORA_BUILD=
 BUILD_CONF=
 PREBUILT_VBOOT_DIR=
+DEPLOY=false
 
 print_usage()
 {
@@ -30,6 +31,7 @@ print_usage()
 	echo "--skip-clean	Skip fedora local repository clean"
 	echo "--skip-fedora-build	Skip fedora build"
 	echo "--prebuilt-vboot	Specify prebuilt directory path for vboot"
+	echo "--deploy-all	Deploy release"
 	exit 0
 }
 
@@ -94,6 +96,9 @@ parse_options()
 				shift ;;
 			--prebuilt-vboot)
 				PREBUILT_VBOOT_DIR=`readlink -e "$2"`
+				shift ;;
+			--deploy-all)
+				DEPLOY=true
 				shift ;;
 			*)
 				shift ;;
@@ -218,6 +223,26 @@ else
 fi
 
 ./mksdfuse.sh $MICROSD_IMAGE
+if $DEPLOY; then
+	mkdir $TARGET_DIR/sdboot
+	./mksdfuse.sh -m
+	mv $TARGET_DIR/${TARGET_BOARD}_sdcard-*.img $TARGET_DIR/sdboot
+
+	mkdir $TARGET_DIR/hwtest
+	if [ "$HWTEST_ROOTFS_PATH" == "" ]; then
+		HWTEST_ROOTFS_PATH=$TARGET_DIR/rootfs.tar.gz
+	fi
+	if [ "$HWTEST_IMAGE_PATH" == "" ]; then
+		HW_ARGS=" --hwtest-rootfs $HWTEST_ROOTFS_PATH --hwtest-mfg $HWTEST_MFG_PATH"
+	else
+		HW_ARGS=" -f $HWTEST_IMAGE_PATH"
+	fi
+	./mksdhwtest.sh $HW_ARGS
+	if [ "$HWTEST_RECOVERY_IMAGE" == "1" ]; then
+		./mksdhwtest.sh $HW_ARGS --recovery
+	fi
+	mv $TARGET_DIR/${TARGET_BOARD}_hwtest*.img $TARGET_DIR/hwtest
+fi
 
 ./mkrootfs_image.sh $TARGET_DIR
 
