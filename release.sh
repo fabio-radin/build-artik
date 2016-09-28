@@ -113,7 +113,8 @@ package_check()
 
 gen_artik_release()
 {
-	cat > $TARGET_DIR/artik_release << __EOF__
+	if [ "$ARTIK_RELEASE_LEGACY" != "1" ]; then
+		cat > $TARGET_DIR/artik_release << __EOF__
 BUILD_VERSION=
 BUILD_DATE=
 BUILD_UBOOT=
@@ -124,6 +125,18 @@ BT_FW=${BT_FW}
 ZIGBEE_FW=${ZIGBEE_FW}
 SE_FW=${SE_FW}
 __EOF__
+	else
+		cat > $TARGET_DIR/artik_release << __EOF__
+RELEASE_VERSION=
+RELEASE_DATE=
+RELEASE_UBOOT=
+RELEASE_KERNEL=
+MODEL=
+WIFI_FW=${WIFI_FW}
+BT_FW=${BT_FW}
+ZIGBEE_FW=${ZIGBEE_FW}
+__EOF__
+	fi
 }
 
 fill_artik_release()
