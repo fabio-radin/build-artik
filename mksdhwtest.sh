@@ -250,6 +250,8 @@ install_output()
 		sudo su -c "cp $TARGET_DIR/rootfs.tar.gz mnt"
 		[ -e $TARGET_DIR/artik_release ] && sudo su -c "cp $TARGET_DIR/artik_release mnt"
 	fi
+	[ -e $TARGET_DIR/artik_release ] && sudo su -c "cp $TARGET_DIR/artik_release mnt/etc"
+
 	sync;sync
 	sudo umount mnt
 	sudo kpartx -d ${IMG_NAME}
