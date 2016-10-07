@@ -72,6 +72,7 @@ gen_envs()
 
 	# Generate hwtest sd-boot param
 	sed -i -e 's/bootcmd=run .*/bootcmd=run hwtestboot/g' default_envs.txt
+	sed -i -e 's/bootdelay=.*/bootdelay=0/g' default_envs.txt
 	tools/mkenvimage -s 16384 -o params_hwtest.bin default_envs.txt
 
 	# Generate hwtest verified boot param
