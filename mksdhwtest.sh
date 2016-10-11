@@ -93,6 +93,14 @@ MODULE_START_SECTOR=$((MODULE_START_OFFSET << 11))
 ROOTFS_START_OFFSET=$(expr $MODULE_START_OFFSET + $MODULE_SIZE)
 ROOTFS_START_SECTOR=$((ROOTFS_START_OFFSET << 11))
 
+if $HWTEST_RECOVERY_IMAGE; then
+	HWTEST_SDBOOT=sd_boot_hwtest_recovery.img
+	PARAMS_NAME=params_hwtest_recovery.bin
+else
+	HWTEST_SDBOOT=sd_boot_hwtest.img
+	PARAMS_NAME=params_hwtest.bin
+fi
+
 repartition() {
 fdisk $1 << __EOF__
 n
@@ -133,14 +141,6 @@ __EOF__
 
 gen_hwtest_boot()
 {
-	if $HWTEST_RECOVERY_IMAGE; then
-		HWTEST_SDBOOT=sd_boot_hwtest_recovery.img
-		PARAMS_NAME=params_hwtest_recovery.bin
-	else
-		HWTEST_SDBOOT=sd_boot_hwtest.img
-		PARAMS_NAME=params_hwtest.bin
-	fi
-
 	cp $SD_BOOT $HWTEST_SDBOOT
 	dd conv=notrunc if=$PARAMS_NAME of=$HWTEST_SDBOOT seek=$ENV_OFFSET bs=512
 }
@@ -174,7 +174,7 @@ gen_image()
 		if $HWTEST_RECOVERY_IMAGE; then
 			dd if=/dev/zero of=$IMG_NAME bs=1M count=$TOTAL_SZ
 			dd conv=notrunc if=${TARGET_BOARD}_hwtest.img of=$IMG_NAME bs=1M
-			gen_hwtest_boot $IMG_NAME
+			dd conv=notrunc if=$PARAMS_NAME of=$IMG_NAME seek=$ENV_OFFSET bs=512
 			renew_partition $IMG_NAME
 		fi
 
@@ -262,7 +262,7 @@ install_output()
 pushd ${TARGET_DIR}
 
 if [ "$TEST_IMAGE" == "" ]; then
-	gen_hwtest_boot $HWTEST_SDBOOT
+	gen_hwtest_boot
 fi
 gen_image
 install_output
