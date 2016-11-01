@@ -13,6 +13,7 @@ gst-plugins-video-dec
 gst-plugins-video-enc
 gst-plugins-video-sink
 wpa_supplicant
+artik-repos
 sbc
 bluez
 artik-plugin

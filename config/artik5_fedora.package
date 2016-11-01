@@ -1,6 +1,7 @@
 openssl
 libdrm
 wpa_supplicant
+artik-repos
 sbc
 bluez
 iotivity
