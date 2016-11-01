@@ -1,3 +1,4 @@
+openssl
 libdrm
 nx-drm-allocator
 nx-renderer
@@ -11,6 +12,7 @@ gst-plugins-camera-s5p6818
 gst-plugins-video-dec
 gst-plugins-video-enc
 gst-plugins-video-sink
+wpa_supplicant
 sbc
 bluez
 artik-plugin

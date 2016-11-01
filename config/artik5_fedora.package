@@ -1,4 +1,6 @@
+openssl
 libdrm
+wpa_supplicant
 sbc
 bluez
 iotivity
