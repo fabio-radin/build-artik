@@ -1,4 +1,5 @@
 openssl
+curl
 libdrm
 nx-drm-allocator
 nx-renderer
