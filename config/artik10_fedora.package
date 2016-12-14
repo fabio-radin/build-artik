@@ -5,8 +5,10 @@ wpa_supplicant
 artik-repos
 sbc
 bluez
-iotivity
-coap
-lwm2m
 artik-plugin
 artik-plugin-artik10
+mqttsn_gateway
+iotivity
+coap
+mqttsn
+lwm2m
