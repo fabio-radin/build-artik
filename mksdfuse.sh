@@ -145,6 +145,7 @@ install_output()
 		sudo su -c "tar xf $TARGET_DIR/rootfs.tar.gz -C mnt"
 		sudo su -c "sed -i 's/mmcblk0p/mmcblk1p/g' mnt/etc/fstab"
 		sudo su -c "cp artik_release mnt/etc/"
+		sudo su -c "touch mnt/.need_sd_resize"
 	else
 		case "$CHIP_NAME" in
 		s5p6818)
