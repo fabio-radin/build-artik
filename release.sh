@@ -266,6 +266,8 @@ else
 	cp flash_all_by_fastboot.sh $TARGET_DIR
 fi
 
+cp expand_rootfs.sh $TARGET_DIR
+
 if [ -e $PREBUILT_DIR/$TARGET_BOARD/u-boot-recovery.bin ]; then
 	cp $PREBUILT_DIR/$TARGET_BOARD/u-boot-recovery.bin $TARGET_DIR
 fi
