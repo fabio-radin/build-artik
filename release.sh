@@ -240,7 +240,9 @@ if $DEPLOY; then
 	mkdir $TARGET_DIR/sdboot
 	./mksdfuse.sh -m
 	mv $TARGET_DIR/${TARGET_BOARD}_sdcard-*.img $TARGET_DIR/sdboot
+fi
 
+if $DEPLOY && [ "$HWTEST_MFG_PATH" != "" ]; then
 	mkdir $TARGET_DIR/hwtest
 	if [ "$HWTEST_ROOTFS_PATH" == "" ]; then
 		HWTEST_ROOTFS_PATH=$TARGET_DIR/rootfs.tar.gz
