@@ -136,6 +136,9 @@ build_package()
 {
 	local pkg=$1
 	local dest_dir=$2
+	if [ "$JOBS" == "" ]; then
+		JOBS=`getconf _NPROCESSORS_ONLN`
+	fi
 
 	if [ -d $pkg ]; then
 		debian_dir=`find ./$pkg -name "debian" -type d`
