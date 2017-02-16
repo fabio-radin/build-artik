@@ -27,12 +27,6 @@ parse_options()
 
 build()
 {
-	if [ "${CHIP_NAME}" == "s5p4418" ]; then
-		UBOOT_BUILD_OPT="CONFIG_SYS_TEXT_BASE=${UBOOT_TEXT_BASE} "
-		UBOOT_BUILD_OPT+="KCPPFLAGS+=-DSDRAM_BASE=${UBOOT_DRAM_BASE} "
-		UBOOT_BUILD_OPT+="KCPPFLAGS+=-DSDRAM_SIZE=${UBOOT_DRMA_SIZE} "
-	fi
-
 	make ARCH=arm distclean
 	make ARCH=arm distclean O=$UBOOT_DIR/output
 	make ARCH=arm $UBOOT_DEFCONFIG O=$UBOOT_DIR/output
