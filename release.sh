@@ -150,6 +150,7 @@ MODEL=
 WIFI_FW=${WIFI_FW}
 BT_FW=${BT_FW}
 ZIGBEE_FW=${ZIGBEE_FW}
+SE_FW=${SE_FW}
 __EOF__
 	fi
 }
