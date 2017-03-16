@@ -33,7 +33,7 @@ build.
 ## 3. Build guide
 ### 3.1 Install packages
 ```
-sudo apt-get install kpartx u-boot-tools gcc-arm-linux-gnueabihf libssl-dev
+sudo apt-get install kpartx u-boot-tools gcc-arm-linux-gnueabihf libssl-dev device-tree-compiler
 ```
 
 ### 3.2 Download BSP sources
