@@ -91,6 +91,17 @@ MODULE_START_SECTOR=$((MODULE_START_OFFSET << 11))
 ROOTFS_START_OFFSET=$(expr $MODULE_START_OFFSET + $MODULE_SIZE)
 ROOTFS_START_SECTOR=$((ROOTFS_START_OFFSET << 11))
 
+#Partition For OTA
+EXT_PART_PAD=2048
+FLAG_START_SECTOR_OTA=$((SKIP_BOOT_SIZE << 11))
+FLAG_SIZE=128
+BOOT_START_SECTOR_OTA=$(expr $FLAG_START_SECTOR_OTA + $FLAG_SIZE \* 2)
+BOOT0_START_SECTOR_OTA=$(expr $BOOT_START_SECTOR_OTA + $((BOOT_SIZE << 10)) \* 2)
+EXT_START_SECTOR_OTA=$(expr $BOOT0_START_SECTOR_OTA + $((BOOT_SIZE << 10)) \* 2)
+MODULES_START_SECTOR_OTA=$(expr $EXT_START_SECTOR_OTA + $EXT_PART_PAD)
+MODULES0_START_SECTOR_OTA=$(expr $MODULES_START_SECTOR_OTA + $EXT_PART_PAD + $((MODULE_SIZE << 10)) \* 2)
+ROOTFS_START_SECTOR_OTA=$(expr $MODULES0_START_SECTOR_OTA + $EXT_PART_PAD + $((MODULE_SIZE << 10)) \* 2)
+
 repartition() {
 fdisk $1 << __EOF__
 n
@@ -114,6 +125,47 @@ w
 __EOF__
 }
 
+repartition_ota() {
+fdisk $1 << __EOF__
+n
+p
+1
+$FLAG_START_SECTOR_OTA
++${FLAG_SIZE}K
+
+n
+p
+2
+$BOOT_START_SECTOR_OTA
++${BOOT_SIZE}M
+
+n
+p
+3
+$BOOT0_START_SECTOR_OTA
++${BOOT_SIZE}M
+
+n
+e
+$EXT_START_SECTOR_OTA
+
+
+n
+$MODULES_START_SECTOR_OTA
++${MODULE_SIZE}M
+
+n
+$MODULES0_START_SECTOR_OTA
++${MODULE_SIZE}M
+
+n
+$ROOTFS_START_SECTOR_OTA
+
+
+w
+__EOF__
+}
+
 gen_image()
 {
 	if $SDBOOT_IMAGE; then
@@ -127,14 +179,23 @@ gen_image()
 	fi
 
 	ROOTFS_SZ=$((ROOTFS_SIZE >> 20))
-	TOTAL_SZ=`expr $ROOTFS_SZ + $BOOT_SIZE + $MODULE_SIZE + 2 + $ROOTFS_GAIN`
+	if [ "$OTA" == "true" ] && [ "$SDBOOT_IMAGE" == "true" ]; then
+		TOTAL_SZ=`expr $BOOT_SIZE + $BOOT_SIZE + $MODULE_SIZE + $MODULE_SIZE + $ROOTFS_SZ + $ROOTFS_GAIN + 2`
 
-	dd if=/dev/zero of=$IMG_NAME bs=1M count=$TOTAL_SZ
-	dd conv=notrunc if=$TARGET_DIR/$SD_BOOT of=$IMG_NAME bs=512
-	sync
+		dd if=/dev/zero of=$IMG_NAME bs=1M count=$TOTAL_SZ
+		dd conv=notrunc if=$TARGET_DIR/$SD_BOOT of=$IMG_NAME bs=512
+		sync
 
-	repartition $IMG_NAME
+		repartition_ota $IMG_NAME
+	else
+		TOTAL_SZ=`expr $ROOTFS_SZ + $BOOT_SIZE + $MODULE_SIZE + 2 + $ROOTFS_GAIN`
 
+		dd if=/dev/zero of=$IMG_NAME bs=1M count=$TOTAL_SZ
+		dd conv=notrunc if=$TARGET_DIR/$SD_BOOT of=$IMG_NAME bs=512
+		sync
+
+		repartition $IMG_NAME
+	fi
 	sync;sync;sync
 }
 
@@ -142,22 +203,34 @@ install_output()
 {
 	sudo kpartx -a -v ${IMG_NAME}
 
-	LOOP_DEV1=`sudo kpartx -l ${IMG_NAME} | awk '{ print $1 }' | awk 'NR == 1'`
-	LOOP_DEV2=`sudo kpartx -l ${IMG_NAME} | awk '{ print $1 }' | awk 'NR == 3'`
+	if [ "$OTA" == "true" ] && [ "$SDBOOT_IMAGE" == "true" ]; then
+		LOOP_ROOTFS=`sudo kpartx -l ${IMG_NAME} | awk '{ print $1 }' | awk 'NR == 7'`
+		FLAG_START_OFFSET=`expr $FLAG_START_SECTOR_OTA / 2`
+		BOOT_START_OFFSET=`expr $BOOT_START_SECTOR_OTA / 2`
+		MODULE_START_OFFSET=`expr $MODULES_START_SECTOR_OTA / 2`
 
-	sudo su -c "dd conv=notrunc if=$TARGET_DIR/boot.img of=$IMG_NAME \
-		bs=1M seek=$SKIP_BOOT_SIZE count=$BOOT_SIZE"
+		sudo su -c "dd conv=notrunc if=$TARGET_DIR/flag.img of=$IMG_NAME \
+			bs=1024 seek=$FLAG_START_OFFSET count=$FLAG_SIZE"
+		sudo su -c "dd conv=notrunc if=$TARGET_DIR/boot.img of=$IMG_NAME \
+			bs=1024 seek=$BOOT_START_OFFSET count=$((BOOT_SIZE << 10))"
+		sudo su -c "dd conv=notrunc if=$TARGET_DIR/modules.img of=$IMG_NAME \
+			bs=1024 seek=$MODULE_START_OFFSET count=$((MODULE_SIZE << 10))"
+	else
+		LOOP_ROOTFS=`sudo kpartx -l ${IMG_NAME} | awk '{ print $1 }' | awk 'NR == 3'`
+		sudo su -c "dd conv=notrunc if=$TARGET_DIR/boot.img of=$IMG_NAME 	\
+			bs=1M seek=$SKIP_BOOT_SIZE count=$BOOT_SIZE"
 
-	sudo su -c "dd conv=notrunc if=$TARGET_DIR/modules.img of=$IMG_NAME \
-		bs=1M seek=$MODULE_START_OFFSET count=$MODULE_SIZE"
+		sudo su -c "dd conv=notrunc if=$TARGET_DIR/modules.img of=$IMG_NAME	\
+			bs=1M seek=$MODULE_START_OFFSET count=$MODULE_SIZE"
+	fi
 
-	check_exist /dev/mapper/${LOOP_DEV2}
+	check_exist /dev/mapper/${LOOP_ROOTFS}
 
-	sudo su -c "mkfs.ext4 -F -b 4096 -L rootfs /dev/mapper/${LOOP_DEV2}"
+	sudo su -c "mkfs.ext4 -F -b 4096 -L rootfs /dev/mapper/${LOOP_ROOTFS}"
 
 	test -d mnt || mkdir mnt
 
-	sudo su -c "mount /dev/mapper/${LOOP_DEV2} mnt"
+	sudo su -c "mount /dev/mapper/${LOOP_ROOTFS} mnt"
 	sync
 
 	if $SDBOOT_IMAGE; then
@@ -183,6 +256,9 @@ install_output()
 			fi
 			sudo su -c "cp $TARGET_DIR/bootloader.img mnt"
 			sudo su -c "cp $TARGET_DIR/partmap_emmc.txt mnt"
+			if [ "$OTA" == "true" ]; then
+				sudo su -c "cp $TARGET_DIR/flag.img mnt"
+			fi
 			;;
 		*)
 			sudo su -c "cp $TARGET_DIR/bl1.bin mnt"
