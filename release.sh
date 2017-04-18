@@ -131,6 +131,7 @@ gen_artik_release()
 	upper_model=$(echo -n ${TARGET_BOARD} | awk '{print toupper($0)}')
 	if [ "$ARTIK_RELEASE_LEGACY" != "1" ]; then
 		cat > $TARGET_DIR/artik_release << __EOF__
+OFFICIAL_VERSION=${OFFICIAL_VERSION}
 BUILD_VERSION=${BUILD_VERSION}
 BUILD_DATE=${BUILD_DATE}
 BUILD_UBOOT=
@@ -143,6 +144,7 @@ SE_FW=${SE_FW}
 __EOF__
 	else
 		cat > $TARGET_DIR/artik_release << __EOF__
+OFFICIAL_VERSION=${OFFICIAL_VERSION}
 RELEASE_VERSION=${BUILD_VERSION}
 RELEASE_DATE=${BUILD_DATE}
 RELEASE_UBOOT=
