@@ -256,9 +256,6 @@ install_output()
 			fi
 			sudo su -c "cp $TARGET_DIR/bootloader.img mnt"
 			sudo su -c "cp $TARGET_DIR/partmap_emmc.txt mnt"
-			if [ "$OTA" == "true" ]; then
-				sudo su -c "cp $TARGET_DIR/flag.img mnt"
-			fi
 			;;
 		*)
 			sudo su -c "cp $TARGET_DIR/bl1.bin mnt"
@@ -267,6 +264,9 @@ install_output()
 			sudo su -c "cp $TARGET_DIR/tzsw.bin mnt"
 			;;
 		esac
+		if [ "$OTA" == "true" ]; then
+			sudo su -c "cp $TARGET_DIR/flag.img mnt"
+		fi
 
 		sudo su -c "cp $TARGET_DIR/params.bin mnt"
 		sudo su -c "cp $TARGET_DIR/boot.img mnt"
