@@ -60,10 +60,8 @@ s5p4418_sdboot_gen()
 		cp $PREBUILT_DIR/partmap_emmc_ota.txt $TARGET_DIR/partmap_emmc.txt
 		cp $PREBUILT_DIR/flag.img $TARGET_DIR
 	fi
-
-if [ "$SECURE_BOOT" == "enable" ]; then
 	cp $PREBUILT_DIR/secureos.img $TARGET_DIR
-fi
+
 	dd conv=notrunc if=$TARGET_DIR/bl1-sdboot.img of=$IMG_NAME bs=512 seek=$BL1_OFFSET
 	dd conv=notrunc if=$TARGET_DIR/loader-sd.img of=$IMG_NAME bs=512 seek=$LOADER_OFFSET
 	dd conv=notrunc if=$TARGET_DIR/bl_mon.img of=$IMG_NAME bs=512 seek=$BLMON_OFFSET
