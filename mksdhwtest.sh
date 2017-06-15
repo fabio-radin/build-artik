@@ -239,9 +239,7 @@ install_output()
 			sudo su -c "cp $TARGET_DIR/bl1-emmcboot.img mnt"
 			sudo su -c "cp $TARGET_DIR/loader-emmc.img mnt"
 			sudo su -c "cp $TARGET_DIR/bl_mon.img mnt"
-			if [ "$SECURE_BOOT" == "enable" ]; then
-				sudo su -c "cp $TARGET_DIR/secureos.img mnt"
-			fi
+			sudo su -c "cp $TARGET_DIR/secureos.img mnt"
 			sudo su -c "cp $TARGET_DIR/bootloader.img mnt"
 			sudo su -c "cp $TARGET_DIR/partmap_emmc.txt mnt"
 			;;
