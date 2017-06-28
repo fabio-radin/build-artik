@@ -174,12 +174,16 @@ gen_image()
 		sync
 		repartition $IMG_NAME
 	else
-		tar xf $TEST_IMAGE
+		TEST_IMAGE_NAME=`tar xvf $TEST_IMAGE`
 		if $HWTEST_RECOVERY_IMAGE; then
 			dd if=/dev/zero of=$IMG_NAME bs=1M count=$TOTAL_SZ
-			dd conv=notrunc if=${TARGET_BOARD}_hwtest.img of=$IMG_NAME bs=1M
+			dd conv=notrunc if=${TEST_IMAGE_NAME} of=$IMG_NAME bs=1M
 			dd conv=notrunc if=$PARAMS_NAME of=$IMG_NAME seek=$ENV_OFFSET bs=512
 			renew_partition $IMG_NAME
+		else
+			if [ "$IMG_NAME" != "$TEST_IMAGE_NAME" ]; then
+				mv $TEST_IMAGE_NAME $IMG_NAME
+			fi
 		fi
 
 		sync
@@ -272,7 +276,9 @@ if [ "$TEST_IMAGE" == "" ]; then
 	gen_hwtest_boot
 fi
 gen_image
-install_output
+if [ "$HWTEST_RECOVERY_IMAGE" == "true" ] || [ "$TEST_IMAGE" == "" ]; then
+	install_output
+fi
 
 popd
 
