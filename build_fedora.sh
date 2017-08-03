@@ -95,8 +95,6 @@ else
 	BUILD_CONF=""
 fi
 
-FEDORA_PACKAGES=`cat $TARGET_PACKAGE`
-
 if ! $SKIP_CLEAN; then
 	echo "Clean up local repository..."
 	fed-artik-build $BUILD_CONF --clean-repos-and-exit
@@ -108,6 +106,8 @@ if [ "$PREBUILT_RPM_DIR" != "" ]; then
 fi
 
 if ! $SKIP_BUILD; then
+	FEDORA_PACKAGES=`cat $TARGET_PACKAGE`
+
 	for pkg in $FEDORA_PACKAGES
 	do
 		build_package $pkg
