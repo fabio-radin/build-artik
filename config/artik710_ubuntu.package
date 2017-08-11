@@ -26,3 +26,5 @@ xf86-video-armsoc
 artik-plugin
 artik-plugin-artik710
 artik-ubuntu-meta
+artik-ota
+artik-repos
