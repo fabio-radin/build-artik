@@ -142,32 +142,6 @@ gen_nexell_image()
 	fi
 }
 
-gen_nexell_image_mon()
-{
-	local chip_name=$(echo -n ${CHIP_NAME} | awk '{print toupper($0)}')
-	if [ "$CHIP_NAME" == "s5p4418" ]; then
-		input_file=bl_mon.img
-
-		if [ "$RSA_SIGN_TOOL" != "" ]; then
-			${RSA_SIGN_TOOL} -sign $PREBUILT_DIR/${input_file}
-		fi
-	fi
-}
-
-gen_nexell_image_secure()
-{
-	local chip_name=$(echo -n ${CHIP_NAME} | awk '{print toupper($0)}')
-	if [ "$CHIP_NAME" == "s5p6818" ]; then
-		input_file=fip-secure.img
-	else
-		input_file=secureos.img
-	fi
-
-	if [ "$RSA_SIGN_TOOL" != "" ]; then
-		${RSA_SIGN_TOOL} -sign $PREBUILT_DIR/${input_file}
-	fi
-}
-
 trap 'error ${LINENO} ${?}' ERR
 parse_options "$@"
 
@@ -193,11 +167,6 @@ gen_envs
 install_output
 gen_fip_image
 gen_nexell_image
-if [ "$SECURE_BOOT" == "enable" ]; then
-	gen_nexell_image_secure
-	gen_nexell_image_mon
-fi
-
 gen_version_info
 
 popd

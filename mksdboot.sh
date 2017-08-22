@@ -32,12 +32,42 @@ die() {
 	exit 1
 }
 
+gen_nexell_image_mon()
+{
+	local chip_name=$(echo -n ${CHIP_NAME} | awk '{print toupper($0)}')
+	if [ "$CHIP_NAME" == "s5p4418" ]; then
+		input_file=bl_mon.img
+
+		if [ "$RSA_SIGN_TOOL" != "" ]; then
+			${RSA_SIGN_TOOL} -sign $TARGET_DIR/${input_file}
+		fi
+	fi
+}
+
+gen_nexell_image_secure()
+{
+	local chip_name=$(echo -n ${CHIP_NAME} | awk '{print toupper($0)}')
+	if [ "$CHIP_NAME" == "s5p6818" ]; then
+		input_file=fip-secure.img
+	else
+		input_file=secureos.img
+	fi
+
+	if [ "$RSA_SIGN_TOOL" != "" ]; then
+		${RSA_SIGN_TOOL} -sign $TARGET_DIR/${input_file}
+	fi
+}
+
 s5p6818_sdboot_gen()
 {
 	cp $PREBUILT_DIR/bl1-*.img $TARGET_DIR
 	cp $PREBUILT_DIR/fip-loader-*.img $TARGET_DIR
-	cp $PREBUILT_DIR/fip-secure.img $TARGET_DIR
 	cp $PREBUILT_DIR/partmap_emmc.txt $TARGET_DIR
+	cp $PREBUILT_DIR/fip-secure.img $TARGET_DIR
+	if [ "$SECURE_BOOT" == "enable" ]; then
+		gen_nexell_image_secure
+	fi
+
 	if [ "$OTA" == "true" ]; then
 		cp $PREBUILT_DIR/partmap_emmc_ota.txt $TARGET_DIR/partmap_emmc.txt
 		cp $PREBUILT_DIR/flag.img $TARGET_DIR
@@ -54,13 +84,18 @@ s5p4418_sdboot_gen()
 {
 	cp $PREBUILT_DIR/bl1-*.img $TARGET_DIR
 	cp $PREBUILT_DIR/loader-*.img $TARGET_DIR
-	cp $PREBUILT_DIR/bl_mon.img $TARGET_DIR
 	cp $PREBUILT_DIR/partmap_emmc.txt $TARGET_DIR
+	cp $PREBUILT_DIR/bl_mon.img $TARGET_DIR
+	cp $PREBUILT_DIR/secureos.img $TARGET_DIR
+	if [ "$SECURE_BOOT" == "enable" ]; then
+		gen_nexell_image_mon
+		gen_nexell_image_secure
+	fi
+
 	if [ "$OTA" == "true" ]; then
 		cp $PREBUILT_DIR/partmap_emmc_ota.txt $TARGET_DIR/partmap_emmc.txt
 		cp $PREBUILT_DIR/flag.img $TARGET_DIR
 	fi
-	cp $PREBUILT_DIR/secureos.img $TARGET_DIR
 
 	dd conv=notrunc if=$TARGET_DIR/bl1-sdboot.img of=$IMG_NAME bs=512 seek=$BL1_OFFSET
 	dd conv=notrunc if=$TARGET_DIR/loader-sd.img of=$IMG_NAME bs=512 seek=$LOADER_OFFSET
