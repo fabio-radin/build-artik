@@ -233,7 +233,7 @@ if $FULL_BUILD ; then
 			PREBUILT_MODULE_OPT="--prebuilt-module-dir $UBUNTU_MODULE_DEB_DIR"
 		fi
 		UBUNTU_IMG_DIR=../ubuntu-build-service/xenial-${BUILD_ARCH}-${OS_TARGET_BOARD}
-		./build_ubuntu.sh -p config/${OS_TARGET_BOARD}_ubuntu.package \
+		./build_ubuntu.sh -p ${UBUNTU_PACKAGE_FILE} \
 			--ubuntu-name $OS_OUTPUT_NAME \
 			$PREBUILT_REPO_OPT \
 			$PREBUILT_MODULE_OPT \
