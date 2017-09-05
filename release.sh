@@ -229,10 +229,14 @@ if $FULL_BUILD ; then
 		if [ "$BUILD_ARCH" == "arm" ]; then
 			BUILD_ARCH=armhf
 		fi
+		if [ "$UBUNTU_MODULE_DEB_DIR" != "" ]; then
+			PREBUILT_MODULE_OPT="--prebuilt-module-dir $UBUNTU_MODULE_DEB_DIR"
+		fi
 		UBUNTU_IMG_DIR=../ubuntu-build-service/xenial-${BUILD_ARCH}-${OS_TARGET_BOARD}
 		./build_ubuntu.sh -p config/${OS_TARGET_BOARD}_ubuntu.package \
 			--ubuntu-name $OS_OUTPUT_NAME \
 			$PREBUILT_REPO_OPT \
+			$PREBUILT_MODULE_OPT \
 			--arch $BUILD_ARCH --chroot xenial-amd64-${BUILD_ARCH} \
 			--dest-dir $TARGET_DIR $SKIP_UBUNTU_BUILD \
 			--prebuilt-dir ../ubuntu-build-service/prebuilt/$BUILD_ARCH \
