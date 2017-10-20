@@ -227,7 +227,7 @@ if [ "$IMG_DIR" != "" ]; then
 	echo "An ubuntu image generation starting..."
 	pushd $IMG_DIR
 	make clean
-	USE_ARTIK_REPO=$USE_ARTIK_REPO PORT=$PORT ./configure
+	BUILD_SYSROOT=true USE_ARTIK_REPO=$USE_ARTIK_REPO PORT=$PORT ./configure
 	make IMAGEPREFIX=$UBUNTU_NAME
 	mv $UBUNTU_NAME* $DEST_DIR
 fi
