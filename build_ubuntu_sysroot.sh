@@ -10,6 +10,7 @@ DEST_DIR=
 PORT=
 SKIP_BUILD=false
 PREBUILT_DIR=
+PREBUILT_MODULE_DIR=
 IMG_DIR=
 UBUNTU_NAME=
 PREBUILT_REPO_DIR=
@@ -26,6 +27,7 @@ print_usage()
 	echo "-s|--server-port	Server port"
 	echo "--skip-build	Skip package build"
 	echo "--prebuilt-dir	Skip package build"
+	echo "--prebuilt-module-dir     Specify a directory which contains prebuilt debs for specific model"
 	echo "--use-prebuilt-repo	Use prebuilt repository"
 	echo "--img-dir		Image generation directory"
 	echo "-n|--ubuntu-name	Ubuntu image name"
@@ -65,6 +67,9 @@ parse_options()
 			--prebuilt-dir)
 				PREBUILT_DIR=`readlink -e "$2"`
 				shift ;;
+                        --prebuilt-module-dir)
+                                PREBUILT_MODULE_DIR=`readlink -e "$2"`
+                                shift ;;
 			--use-prebuilt-repo)
 				PREBUILT_REPO_DIR=`readlink -e "$2"`
 				shift ;;
@@ -221,6 +226,12 @@ if [ "$PREBUILT_DIR" != "" ]; then
 	echo "Copy prebuilt packages"
 	cp -f $PREBUILT_DIR/*.deb $DEST_DIR/debs
 	gen_ubuntu_meta $DEST_DIR/debs artik-local repo
+fi
+
+if [ "$PREBUILT_MODULE_DIR" != "" ]; then
+        echo "Copy prebuilt packages"
+        cp -f $PREBUILT_MODULE_DIR/*.deb $DEST_DIR/debs
+        gen_ubuntu_meta $DEST_DIR/debs artik-local repo
 fi
 
 if [ "$IMG_DIR" != "" ]; then
