@@ -26,7 +26,7 @@ print_usage()
 	echo "-D|--dest-dir	Build output directory"
 	echo "-s|--server-port	Server port"
 	echo "--skip-build	Skip package build"
-	echo "--prebuilt-dir	Skip package build"
+	echo "--prebuilt-dir	Specify a directory which contains prebuilt debs"
 	echo "--prebuilt-module-dir     Specify a directory which contains prebuilt debs for specific model"
 	echo "--use-prebuilt-repo	Use prebuilt repository"
 	echo "--img-dir		Image generation directory"
