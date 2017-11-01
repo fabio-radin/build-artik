@@ -14,7 +14,6 @@ PREBUILT_MODULE_DIR=
 IMG_DIR=
 UBUNTU_NAME=
 PREBUILT_REPO_DIR=
-USE_ARTIK_REPO=false
 
 print_usage()
 {
@@ -31,7 +30,6 @@ print_usage()
 	echo "--use-prebuilt-repo	Use prebuilt repository"
 	echo "--img-dir		Image generation directory"
 	echo "-n|--ubuntu-name	Ubuntu image name"
-	echo "--use-artik-repo  Use repo.artik.cloud repository"
 	exit 0
 }
 
@@ -78,9 +76,6 @@ parse_options()
 				shift ;;
 			-n|--ubuntu-name)
 				UBUNTU_NAME="$2"
-				shift ;;
-			--use-artik-repo)
-				USE_ARTIK_REPO=true
 				shift ;;
 			*)
 				shift ;;
@@ -238,7 +233,7 @@ if [ "$IMG_DIR" != "" ]; then
 	echo "An ubuntu image generation starting..."
 	pushd $IMG_DIR
 	make clean
-	BUILD_SYSROOT=true USE_ARTIK_REPO=$USE_ARTIK_REPO PORT=$PORT ./configure
+	BUILD_SYSROOT=true PORT=$PORT ./configure
 	make IMAGEPREFIX=$UBUNTU_NAME
 	mv $UBUNTU_NAME* $DEST_DIR
 fi
