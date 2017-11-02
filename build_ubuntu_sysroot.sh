@@ -176,6 +176,15 @@ abnormal_exit()
 	fi
 }
 
+error()
+{
+	JOB="$0"              # job name
+	LASTLINE="$1"         # line of error occurrence
+	LASTERR="$2"          # error code
+	echo "ERROR in ${JOB} : line ${LASTLINE} with exit code ${LASTERR}"
+	exit 1
+}
+
 find_unused_port()
 {
 	read LOWERPORT UPPERPORT < /proc/sys/net/ipv4/ip_local_port_range
@@ -187,6 +196,7 @@ find_unused_port()
 }
 
 trap abnormal_exit INT ERR
+trap 'error ${LINENO} ${?}' ERR
 
 package_check sbuild sponge python3
 
@@ -195,6 +205,8 @@ parse_options "$@"
 if [ "$PORT" == "" ]; then
 	find_unused_port
 fi
+
+mkdir -p $DEST_DIR
 
 [ -d $DEST_DIR/debs ] || mkdir -p $DEST_DIR/debs
 
