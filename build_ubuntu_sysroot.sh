@@ -2,34 +2,22 @@
 
 set -e
 
-TARGET_PACKAGE=
 BUILDCONFIG=
-ARCH=armhf
 SBUILD_CONF=~/.sbuildrc
-DEST_DIR=
 PORT=
 SKIP_BUILD=false
-PREBUILT_DIR=
-PREBUILT_MODULE_DIR=
-IMG_DIR=
-UBUNTU_NAME=
 PREBUILT_REPO_DIR=
 
 print_usage()
 {
 	echo "-h/--help         Show help options"
 	echo "-p|--package	Target package file"
-	echo "-A|--arch		Target architecture(ex: armhf, arm64)"
+	echo "-c/--config       Config file path to build ex) -c config/artik5.cfg"
 	echo "--chroot		Chroot name"
 	echo "-C|--sbuild-conf	Sbuild configuration path"
-	echo "-D|--dest-dir	Build output directory"
 	echo "-s|--server-port	Server port"
 	echo "--skip-build	Skip package build"
-	echo "--prebuilt-dir	Specify a directory which contains prebuilt debs"
-	echo "--prebuilt-module-dir     Specify a directory which contains prebuilt debs for specific model"
 	echo "--use-prebuilt-repo	Use prebuilt repository"
-	echo "--img-dir		Image generation directory"
-	echo "-n|--ubuntu-name	Ubuntu image name"
 	exit 0
 }
 
@@ -41,20 +29,14 @@ parse_options()
 			-h|--help)
 				print_usage
 				shift ;;
-			-A|--arch)
-				ARCH="$2"
-				shift ;;
-			-p|--package)
-				TARGET_PACKAGE=`readlink -e "$2"`
-				shift ;;
+			-c|--config)
+                                CONFIG_FILE="$2"
+                                shift ;;
 			--chroot)
 				CHROOT="$2"
 				shift ;;
 			-C|--sbuild-conf)
 				SBUILD_CONF=`readlink -e "$2"`
-				shift ;;
-			-D|--dest-dir)
-				DEST_DIR=`readlink -e "$2"`
 				shift ;;
 			-s|--server-port)
 				PORT="$2"
@@ -62,20 +44,8 @@ parse_options()
 			--skip-build)
 				SKIP_BUILD=true
 				shift ;;
-			--prebuilt-dir)
-				PREBUILT_DIR=`readlink -e "$2"`
-				shift ;;
-                        --prebuilt-module-dir)
-                                PREBUILT_MODULE_DIR=`readlink -e "$2"`
-                                shift ;;
 			--use-prebuilt-repo)
 				PREBUILT_REPO_DIR=`readlink -e "$2"`
-				shift ;;
-			--img-dir)
-				IMG_DIR=`readlink -e "$2"`
-				shift ;;
-			-n|--ubuntu-name)
-				UBUNTU_NAME="$2"
 				shift ;;
 			*)
 				shift ;;
@@ -150,11 +120,12 @@ build_package()
 		if [ -d $debian_dir ]; then
 			pushd $debian_dir/../
 			echo "Build $pkg.."
+
 			SBUILD_CONFIG=$SBUILD_CONF sbuild --chroot $CHROOT \
-				--host $ARCH \
+				--host $BUILD_ARCH \
 				--extra-repository="deb [trusted=yes] http://localhost:$PORT ./" \
 				--anything-failed-commands="touch $dest_dir/.build_failed" \
-				-j$JOBS
+				-j$JOBS --verbose
 			popd
 			move_build_output $dest_dir
 			gen_ubuntu_meta $dest_dir artik-local repo
@@ -171,8 +142,8 @@ abnormal_exit()
 	if [ "$SERVER_PID" != "" ]; then
 		kill -9 $SERVER_PID
 	fi
-	if [ -e "${DEST_DIR}/debs/.build_failed" ]; then
-		rm -f $DEST_DIR/debs/.build_failed
+	if [ -e "${TARGET_DIR}/debs/.build_failed" ]; then
+		rm -f $TARGET_DIR/debs/.build_failed
 	fi
 }
 
@@ -202,44 +173,72 @@ package_check sbuild sponge python3
 
 parse_options "$@"
 
+if [ "$CONFIG_FILE" != "" ]
+then
+        . $CONFIG_FILE
+fi
+
+if [ "$BUILD_DATE" == "" ]; then
+        BUILD_DATE=`date +"%Y%m%d.%H%M%S"`
+fi
+
+if [ "$BUILD_VERSION" == "" ]; then
+        BUILD_VERSION="UNRELEASED"
+fi
+
+export BUILD_DATE=$BUILD_DATE
+export BUILD_VERSION=$BUILD_VERSION
+
+export TARGET_DIR=$TARGET_DIR/$BUILD_VERSION/$BUILD_DATE
+
+BUILD_ARCH=$ARCH
+if [ "$BUILD_ARCH" == "arm" ]; then
+	BUILD_ARCH="armhf"
+fi
+
 if [ "$PORT" == "" ]; then
 	find_unused_port
 fi
 
-mkdir -p $DEST_DIR
+mkdir -p $TARGET_DIR
 
-[ -d $DEST_DIR/debs ] || mkdir -p $DEST_DIR/debs
+[ -d $TARGET_DIR/debs ] || mkdir -p $TARGET_DIR/debs
 
 if [ "$PREBUILT_REPO_DIR" != "" ]; then
-	cp -rf $PREBUILT_REPO_DIR/* $DEST_DIR/debs
+	cp -rf $PREBUILT_REPO_DIR/* $TARGET_DIR/debs
 fi
 
-start_local_server $DEST_DIR/debs $PORT
+start_local_server $TARGET_DIR/debs $PORT
+
+UBUNTU_PACKAGES=`cat ${UBUNTU_PACKAGE_FILE}`
 
 pushd ../
 
 if ! $SKIP_BUILD; then
-	UBUNTU_PACKAGES=`cat $TARGET_PACKAGE`
-
 	for pkg in $UBUNTU_PACKAGES
 	do
-		build_package $pkg $DEST_DIR/debs
+		build_package $pkg $TARGET_DIR/debs
 	done
 fi
 
 popd
 
-if [ "$PREBUILT_DIR" != "" ]; then
+PREBUILT_DIR=../ubuntu-build-service/prebuilt/$BUILD_ARCH
+
+if [ -d $PREBUILT_DIR ]; then
 	echo "Copy prebuilt packages"
-	cp -f $PREBUILT_DIR/*.deb $DEST_DIR/debs
-	gen_ubuntu_meta $DEST_DIR/debs artik-local repo
+	cp -f $PREBUILT_DIR/*.deb $TARGET_DIR/debs
+	gen_ubuntu_meta $TARGET_DIR/debs artik-local repo
 fi
 
-if [ "$PREBUILT_MODULE_DIR" != "" ]; then
+if [ "$UBUNTU_MODULE_DEB_DIR" != "" ]; then
         echo "Copy prebuilt packages"
-        cp -f $PREBUILT_MODULE_DIR/*.deb $DEST_DIR/debs
-        gen_ubuntu_meta $DEST_DIR/debs artik-local repo
+        cp -f $UBUNTU_MODULE_DEB_DIR/*.deb $TARGET_DIR/debs
+        gen_ubuntu_meta $TARGET_DIR/debs artik-local repo
 fi
+
+IMG_DIR=../ubuntu-build-service/xenial-${BUILD_ARCH}-${TARGET_BOARD}
+UBUNTU_NAME=ubuntu-arm-$TARGET_BOARD-rootfs-$BUILD_VERSION-$BUILD_DATE
 
 if [ "$IMG_DIR" != "" ]; then
 	echo "An ubuntu image generation starting..."
@@ -247,12 +246,12 @@ if [ "$IMG_DIR" != "" ]; then
 	make clean
 	BUILD_SYSROOT=true PORT=$PORT ./configure
 	make IMAGEPREFIX=$UBUNTU_NAME
-	mv $UBUNTU_NAME* $DEST_DIR
+	mv $UBUNTU_NAME* $TARGET_DIR
 fi
 
 stop_local_server
 
-cat > $DEST_DIR/install_sysroot.sh << __EOF__
+cat > $TARGET_DIR/install_sysroot.sh << __EOF__
 #!/bin/sh
 
 uudecode \$0
@@ -264,7 +263,7 @@ sudo rm -f $UBUNTU_NAME.tar.gz
 __EOF__
 
 if [ "$ARCH" == "arm" -o "$ARCH" == "armhf" ]; then
-cat >> $DEST_DIR/install_sysroot.sh << __EOF__
+cat >> $TARGET_DIR/install_sysroot.sh << __EOF__
 cat > \$INSTALL_PATH/sysroot_env << __EOF__
 export PATH=:$PATH
 export PKG_CONFIG_SYSROOT_DIR=\$INSTALL_PATH/BUILDROOT
@@ -281,7 +280,7 @@ echo "Please run \"source \$INSTALL_PATH/sysroot_env\" before compile."
 exit
 __EOF__
 elif [ "$ARCH" == "aarch64" -o "$ARCH" == "arm64" ]; then
-cat >> $DEST_DIR/install_sysroot.sh << __EOF__
+cat >> $TARGET_DIR/install_sysroot.sh << __EOF__
 cat > \$INSTALL_PATH/sysroot_env << __EOF__
 export PATH=:$PATH
 export PKG_CONFIG_SYSROOT_DIR=\$INSTALL_PATH/BUILDROOT
@@ -299,10 +298,10 @@ exit
 __EOF__
 fi
 
-sed -i -e "s/IN__EOF__/__EOF__/g" $DEST_DIR/install_sysroot.sh
+sed -i -e "s/IN__EOF__/__EOF__/g" $TARGET_DIR/install_sysroot.sh
 
-uuencode $DEST_DIR/$UBUNTU_NAME.tar.gz $UBUNTU_NAME.tar.gz >> $DEST_DIR/install_sysroot.sh
-chmod 755 $DEST_DIR/install_sysroot.sh
+uuencode $TARGET_DIR/$UBUNTU_NAME.tar.gz $UBUNTU_NAME.tar.gz >> $TARGET_DIR/install_sysroot.sh
+chmod 755 $TARGET_DIR/install_sysroot.sh
 
 
 echo "A new Ubuntu sysroot has been created"
