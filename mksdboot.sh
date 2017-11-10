@@ -39,6 +39,7 @@ gen_nexell_image_mon()
 		input_file=bl_mon.img
 
 		if [ "$RSA_SIGN_TOOL" != "" ]; then
+			chmod a+x ${RSA_SIGN_TOOL}
 			${RSA_SIGN_TOOL} -sign $TARGET_DIR/${input_file}
 		fi
 	fi
@@ -54,6 +55,7 @@ gen_nexell_image_secure()
 	fi
 
 	if [ "$RSA_SIGN_TOOL" != "" ]; then
+		chmod a+x ${RSA_SIGN_TOOL}
 		${RSA_SIGN_TOOL} -sign $TARGET_DIR/${input_file}
 	fi
 }

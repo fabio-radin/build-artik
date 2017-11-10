@@ -138,7 +138,26 @@ gen_nexell_image()
 
 
 	if [ "$SECURE_BOOT" == "enable" ] && [ "$RSA_SIGN_TOOL" != "" ] ; then
+		chmod a+x ${RSA_SIGN_TOOL}
 		${RSA_SIGN_TOOL} -sign $TARGET_DIR/${output_file}
+	fi
+}
+
+check_rsa_sign_tool()
+{
+	if [ "${TARGET_BOARD}" == "artik530s" ] || [ "${TARGET_BOARD}" == "artik533s" ] || [ "${TARGET_BOARD}" == "artik710s" ]; then
+		test -e $SECURE_PREBUILT_DIR/${TARGET_BOARD}_codesigner && cp -f $SECURE_PREBUILT_DIR/${TARGET_BOARD}_codesigner ${RSA_SIGN_TOOL}
+		if [ ! -e ${RSA_SIGN_TOOL} ]; then
+			echo -e "\e[1;31mERROR: cannot find ${RSA_SIGN_TOOL}\e[0m"
+			echo -e "\e[1;31mBuild process has been terminated since the mandatory security binaries do not exist in your source code.\e[0m"
+			echo -e "\e[1;31mPlease download those files from artik.io with SLA agreement to continue to build.\e[0m"
+			echo -e "\e[1;31mOnce you download those files, please locate them to the following path.\e[0m"
+			echo -e ""
+			echo -e "\e[1;31m${TARGET_BOARD}_codesigner\e[0m"
+			echo -e "\e[1;31mcopy to ../boot-firmwares-${TARGET_BOARD}/\e[0m"
+
+			exit 1
+		fi
 	fi
 }
 
@@ -154,6 +173,8 @@ else
 		. $SCRIPT_DIR/config/$TARGET_BOARD.cfg
 	fi
 fi
+
+check_rsa_sign_tool
 
 test -d $TARGET_DIR || mkdir -p $TARGET_DIR
 

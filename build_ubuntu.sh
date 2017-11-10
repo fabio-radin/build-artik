@@ -14,6 +14,7 @@ PREBUILT_MODULE_DIR=
 IMG_DIR=
 UBUNTU_NAME=
 PREBUILT_REPO_DIR=
+TARGET_BOARD=
 
 print_usage()
 {
@@ -30,6 +31,7 @@ print_usage()
 	echo "--use-prebuilt-repo	Use prebuilt repository"
 	echo "--img-dir		Image generation directory"
 	echo "-n|--ubuntu-name	Ubuntu image name"
+	echo "-b [TARGET_BOARD]	Target board ex) -b artik710|artik530|artik5|artik10"
 	exit 0
 }
 
@@ -76,6 +78,9 @@ parse_options()
 				shift ;;
 			-n|--ubuntu-name)
 				UBUNTU_NAME="$2"
+				shift ;;
+			-b)
+				TARGET_BOARD="$2"
 				shift ;;
 			*)
 				shift ;;
@@ -186,6 +191,30 @@ find_unused_port()
 	done
 }
 
+restrictive_pkg_check()
+{
+	if [ "$SECURE_PREBUILT_DIR/debs" != "" ]; then
+		cp -f $SECURE_PREBUILT_DIR/debs/*.deb $DEST_DIR/debs
+	fi
+	if [ "${TARGET_BOARD}" == "artik530s" ] || [ "${TARGET_BOARD}" == "artik533s" ] || [ "${TARGET_BOARD}" == "artik710s" ]; then
+		RESTRICTIVE_PKG_LIST=`cat config/${TARGET_BOARD}_secure.list`
+		for l in $RESTRICTIVE_PKG_LIST
+		do
+			if [ "${l##*.}" == "deb" ] && [ ! -f $l ]; then
+				echo -e "\e[1;31mERROR: cannot find ${l}\e[0m"
+				echo -e "\e[1;31mBuild process has been terminated since the mandatory security binaries do not exist in your source code.\e[0m"
+				echo -e "\e[1;31mPlease download those files from artik.io with SLA agreement to continue to build.\e[0m"
+				echo -e "\e[1;31mOnce you download those files, please locate them to the following path.\e[0m"
+				echo -e ""
+				echo -e "\e[1;31mdeb files\e[0m"
+				echo -e "\e[1;31mcopy to ../ubuntu-build-service/prebuilt/${ARCH}/${TARGET_BOARD}/\e[0m"
+
+				exit 1
+			fi
+		done
+	fi
+}
+
 trap abnormal_exit INT ERR
 
 package_check sbuild sponge python3
@@ -201,6 +230,8 @@ fi
 if [ "$PREBUILT_REPO_DIR" != "" ]; then
 	cp -rf $PREBUILT_REPO_DIR/* $DEST_DIR/debs
 fi
+
+restrictive_pkg_check
 
 start_local_server $DEST_DIR/debs $PORT
 
