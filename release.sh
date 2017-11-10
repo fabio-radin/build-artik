@@ -15,6 +15,8 @@ PREBUILT_VBOOT_DIR=
 PREBUILT_REPO_OPT=
 DEPLOY=false
 OS_NAME=fedora
+KMS_PREBUILT_DIR=false
+KMS_TARGET_DIR=false
 
 print_usage()
 {
@@ -37,6 +39,8 @@ print_usage()
 	echo "--use-prebuilt-repo	Use prebuilt repository"
 	echo "--skip-ubuntu-build	Skip ubuntu build"
 	echo "--prebuilt-vboot	Specify prebuilt directory path for vboot"
+	echo "--kms-prebuilt-dir	Signed binaries directory"
+	echo "--kms-target-dir			Previous output directory"
 	echo "--deploy-all	Deploy release"
 	exit 0
 }
@@ -108,6 +112,12 @@ parse_options()
 				shift ;;
 			--prebuilt-vboot)
 				PREBUILT_VBOOT_DIR=`readlink -e "$2"`
+				shift ;;
+			--kms-prebuilt-dir)
+				KMS_PREBUILT_DIR=`readlink -e "$2"`
+				shift ;;
+			--kms-target-dir)
+				KMS_TARGET_DIR=`readlink -e "$2"`
 				shift ;;
 			--deploy-all)
 				DEPLOY=true
@@ -230,6 +240,8 @@ mkdir -p $TARGET_DIR
 
 gen_artik_release
 
+if [ "$KMS_PREBUILT_DIR" == "false" ]; then
+
 if [ "$PREBUILT_VBOOT_DIR" == "" ]; then
 	./build_uboot.sh
 	./build_kernel.sh
@@ -340,3 +352,14 @@ ls -al $TARGET_DIR
 
 echo "ARTIK release information"
 cat $TARGET_DIR/artik_release
+
+else
+	export TARGET_DIR=$KMS_TARGET_DIR
+
+	test ! -d $KMS_TARGET_DIR/signed && mkdir $KMS_TARGET_DIR/signed
+	./mksdboot_kms.sh --kms-prebuilt-dir $KMS_PREBUILT_DIR --kms-target-dir $KMS_TARGET_DIR/signed
+	./mksdfuse_kms.sh --kms-prebuilt-dir $KMS_PREBUILT_DIR --kms-target-dir $KMS_TARGET_DIR/signed
+	./mksdfuse_kms.sh -m --kms-prebuilt-dir $KMS_PREBUILT_DIR --kms-target-dir $KMS_TARGET_DIR/signed
+
+	mv $TARGET_DIR/${TARGET_BOARD}_kms_sd*.img $KMS_TARGET_DIR/signed
+fi
