@@ -51,6 +51,11 @@ install_boot_image()
 	sudo sh -c "install -m 664 $TARGET_DIR/$KERNEL_DTB mnt"
 	sudo sh -c "install -m 664 $TARGET_DIR/$RAMDISK_NAME mnt"
 
+	if [ "$OVERLAY" == "true" ]; then
+		test -d mnt/overlays || sudo mkdir mnt/overlays
+		sudo sh -c "install -m 644 $TARGET_DIR/$KERNEL_DTBO mnt/overlays"
+	fi
+
 	sync; sync;
 	sudo umount mnt
 

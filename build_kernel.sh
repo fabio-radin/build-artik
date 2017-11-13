@@ -54,6 +54,11 @@ install_output()
 	cp arch/$ARCH/boot/$KERNEL_IMAGE $TARGET_DIR
 	cp $DTB_PREFIX_DIR/$KERNEL_DTB $TARGET_DIR
 	cp vmlinux $TARGET_DIR
+
+	if [ "$OVERLAY" == "true" ]; then
+		mkdir -p $TARGET_DIR/overlays
+		cp $DTB_PREFIX_DIR/$KERNEL_DTBO $TARGET_DIR/overlays
+	fi
 }
 
 gen_version_info()
