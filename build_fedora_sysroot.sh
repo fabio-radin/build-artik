@@ -16,9 +16,9 @@ BUILDCONFIG=
 print_usage()
 {
 	echo "-h/--help         Show help options"
-	echo "-o		Target directory"
 	echo "-b		Target board"
 	echo "-p		Target package file"
+	echo "-c/--config       Config file path to build ex) -c config/artik5.cfg"
 	echo "-n		Output name"
 	echo "-r		Prebuilt rpm directory"
 	echo "-k		Kickstart file"
@@ -37,11 +37,11 @@ parse_options()
 			-h|--help)
 				print_usage
 				shift ;;
+			-c|--config)
+                                CONFIG_FILE="$2"
+                                shift ;;
 			-n)
 				FEDORA_NAME="$2"
-				shift ;;
-			-o)
-				TARGET_DIR=`readlink -e "$2"`
 				shift ;;
 			-p)
 				TARGET_PACKAGE=`readlink -e "$2"`
@@ -85,9 +85,49 @@ build_package()
 	popd
 }
 
+gen_artik_release()
+{
+        upper_model=$(echo -n ${TARGET_BOARD} | awk '{print toupper($0)}')
+	cat > $TARGET_DIR/artik_sysroot_release << __EOF__
+OFFICIAL_VERSION=${OFFICIAL_VERSION}
+SDK_VERSION=${SDK_VERSION}
+BUILD_VERSION=${BUILD_VERSION}
+BUILD_DATE=${BUILD_DATE}
+MODEL=${upper_model}
+__EOF__
+}
+
 package_check fed-artik-creator
 
 parse_options "$@"
+
+if [ "$CONFIG_FILE" != "" ]
+then
+        . $CONFIG_FILE
+fi
+
+. config/version/fedora_sysroot.cfg
+
+if [ "$BUILD_DATE" == "" ]; then
+        BUILD_DATE=`date +"%Y%m%d.%H%M%S"`
+fi
+
+if [ "$BUILD_VERSION" == "" ]; then
+        BUILD_VERSION="UNRELEASED"
+fi
+
+if [ "$SYSROOT_VERSION" == "" ]; then
+        SYSROOT_VERSION="00"
+fi
+
+export BUILD_DATE=$BUILD_DATE
+export BUILD_VERSION=$BUILD_VERSION
+
+export TARGET_DIR=$TARGET_DIR/$BUILD_VERSION/$BUILD_DATE
+
+mkdir -p $TARGET_DIR
+
+gen_artik_release
 
 if [ "$BUILDCONFIG" != "" ]; then
 	BUILD_CONF="-C $BUILDCONFIG"
@@ -117,8 +157,7 @@ fi
 fed-artik-creator $BUILD_CONF --copy-rpm-dir $KICKSTART_DIR/prebuilt
 
 if [ "$FEDORA_NAME" == "" ]; then
-	KS_BASE=${KICKSTART_FILE##*/}
-	FEDORA_NAME=${KS_BASE%.*}-`date +"%Y%m%d%H%M%S"`
+	FEDORA_NAME=SYSROOT-fedora-arm-$TARGET_BOARD-rootfs-$BUILD_VERSION-$SYSROOT_VERSION-$BUILD_DATE
 fi
 
 fed-artik-creator $BUILD_CONF --copy-kickstart-dir $KICKSTART_DIR \
@@ -152,6 +191,15 @@ exit
 __EOF__
 
 sed -i -e "s/IN__EOF__/__EOF__/g" $TARGET_DIR/install_sysroot.sh
+
+mkdir -p $TARGET_DIR/rootfs
+sudo tar zxf $TARGET_DIR/${FEDORA_NAME}.tar.gz -C $TARGET_DIR/rootfs
+sudo mv $TARGET_DIR/artik_sysroot_release $TARGET_DIR/rootfs/
+sync
+
+sudo tar zcf $TARGET_DIR/${FEDORA_NAME}.tar.gz -C $TARGET_DIR/rootfs .
+
+sudo rm -rf $TARGET_DIR/rootfs
 
 uuencode $TARGET_DIR/$FEDORA_NAME.tar.gz $FEDORA_NAME.tar.gz >> $TARGET_DIR/install_sysroot.sh
 chmod 755 $TARGET_DIR/install_sysroot.sh
