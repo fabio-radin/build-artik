@@ -7,7 +7,6 @@ SBUILD_CONF=~/.sbuildrc
 PORT=
 SKIP_BUILD=false
 PREBUILT_REPO_DIR=
-SYSROOT_VERSION="00"
 
 print_usage()
 {
@@ -199,6 +198,10 @@ fi
 
 if [ "$BUILD_VERSION" == "" ]; then
         BUILD_VERSION="UNRELEASED"
+fi
+
+if [ "$SYSROOT_VERSION" == "" ]; then
+        SYSROOT_VERSION="00"
 fi
 
 export BUILD_DATE=$BUILD_DATE
