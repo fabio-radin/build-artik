@@ -136,7 +136,7 @@ check_restrictive_pkg()
 	if [ "${TARGET_BOARD}" == "artik530s" ] || [ "${TARGET_BOARD}" == "artik533s" ] || [ "${TARGET_BOARD}" == "artik710s" ]; then
 		if [ "$SECURE_PREBUILT_DIR" != "" ]; then
 			cp -f $SECURE_PREBUILT_DIR/${TARGET_BOARD}_codesigner $PREBUILT_DIR
-			cp -f $SECURE_PREBUILT_DIR/secureos.img $PREBUILT_DIR
+			cp -f $SECURE_PREBUILT_DIR/${SECURE_OS_FILE} $PREBUILT_DIR
 
 			test ! -d $UBUNTU_MODULE_DEB_DIR && mkdir -p $UBUNTU_MODULE_DEB_DIR
 			cp -f $SECURE_PREBUILT_DIR/debs/*.deb $UBUNTU_MODULE_DEB_DIR
