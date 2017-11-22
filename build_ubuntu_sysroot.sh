@@ -275,6 +275,7 @@ sudo mv $TARGET_DIR/artik_sysroot_release $TARGET_DIR/rootfs/
 sync
 
 sudo tar zcf $TARGET_DIR/${UBUNTU_NAME}.tar.gz -C $TARGET_DIR/rootfs .
+sudo tar --exclude=usr/lib/python2.7 --exclude=usr/lib/python3.5 -zcf $TARGET_DIR/${UBUNTU_NAME}-IDE.tar.gz -C $TARGET_DIR/rootfs usr/include usr/lib lib
 
 sudo rm -rf $TARGET_DIR/rootfs
 
