@@ -11,6 +11,7 @@ SKIP_CLEAN=
 SKIP_FEDORA_BUILD=
 SKIP_UBUNTU_BUILD=
 BUILD_CONF=
+WITH_E2E=
 PREBUILT_VBOOT_DIR=
 PREBUILT_REPO_OPT=
 DEPLOY=false
@@ -38,6 +39,7 @@ print_usage()
 	echo "--skip-fedora-build	Skip fedora build"
 	echo "--use-prebuilt-repo	Use prebuilt repository"
 	echo "--skip-ubuntu-build	Skip ubuntu build"
+	echo "--with-e2e	Include E2E packages"
 	echo "--prebuilt-vboot	Specify prebuilt directory path for vboot"
 	echo "--kms-prebuilt-dir	Signed binaries directory"
 	echo "--kms-target-dir			Previous output directory"
@@ -88,6 +90,9 @@ parse_options()
 				shift ;;
 			--sboot)
 				SECURE_BOOT=true
+				shift ;;
+			--with-e2e)
+				WITH_E2E=--with-e2e
 				shift ;;
 			--vboot)
 				VERIFIED_BOOT=true
@@ -289,6 +294,7 @@ if $FULL_BUILD ; then
 			--ubuntu-name $OS_OUTPUT_NAME \
 			$PREBUILT_REPO_OPT \
 			$PREBUILT_MODULE_OPT \
+			$WITH_E2E \
 			--arch $BUILD_ARCH --chroot xenial-amd64-${BUILD_ARCH} \
 			--dest-dir $TARGET_DIR $SKIP_UBUNTU_BUILD \
 			--prebuilt-dir ../ubuntu-build-service/prebuilt/$BUILD_ARCH \

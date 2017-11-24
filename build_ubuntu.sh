@@ -15,6 +15,7 @@ IMG_DIR=
 UBUNTU_NAME=
 PREBUILT_REPO_DIR=
 TARGET_BOARD=
+WITH_E2E=false
 
 print_usage()
 {
@@ -29,6 +30,7 @@ print_usage()
 	echo "--prebuilt-dir	Specify a directory which contains prebuilt debs"
 	echo "--prebuilt-module-dir	Specify a directory which contains prebuilt debs for specific model"
 	echo "--use-prebuilt-repo	Use prebuilt repository"
+	echo "--with-e2e	Include E2E pacakges"
 	echo "--img-dir		Image generation directory"
 	echo "-n|--ubuntu-name	Ubuntu image name"
 	echo "-b [TARGET_BOARD]	Target board ex) -b artik710|artik530|artik5|artik10"
@@ -72,6 +74,9 @@ parse_options()
 				shift ;;
 			--use-prebuilt-repo)
 				PREBUILT_REPO_DIR=`readlink -e "$2"`
+				shift ;;
+			--with-e2e)
+				WITH_E2E=true
 				shift ;;
 			--img-dir)
 				IMG_DIR=`readlink -e "$2"`
@@ -260,11 +265,17 @@ if [ "$PREBUILT_MODULE_DIR" != "" ]; then
 	gen_ubuntu_meta $DEST_DIR/debs artik-local repo
 fi
 
+if [ "$WITH_E2E" == "true" ] && [ "$E2E_PLUGIN_DIR" != "" ]; then
+	echo "Copy E2E packages"
+	cp -f ${E2E_PLUGIN_DIR}/ubuntu/${ARCH}/*.deb $DEST_DIR/debs
+	gen_ubuntu_meta $DEST_DIR/debs artik-local repo
+fi
+
 if [ "$IMG_DIR" != "" ]; then
 	echo "An ubuntu image generation starting..."
 	pushd $IMG_DIR
 	make clean
-	PORT=$PORT ./configure
+	WITH_E2E=$WITH_E2E PORT=$PORT ./configure
 	make IMAGEPREFIX=$UBUNTU_NAME
 	mv $UBUNTU_NAME* $DEST_DIR
 	echo "A new ubuntu image has been created"
