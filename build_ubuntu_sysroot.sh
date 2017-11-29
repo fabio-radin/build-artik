@@ -166,6 +166,14 @@ find_unused_port()
 	done
 }
 
+restrictive_pkg_check()
+{
+        if [ -d "$SECURE_PREBUILT_DIR" ]; then
+		test ! -d $UBUNTU_MODULE_DEB_DIR && mkdir -p $UBUNTU_MODULE_DEB_DIR
+                cp -f $SECURE_PREBUILT_DIR/debs/*.deb $UBUNTU_MODULE_DEB_DIR
+        fi
+}
+
 gen_artik_release()
 {
         upper_model=$(echo -n ${TARGET_BOARD} | awk '{print toupper($0)}')
@@ -227,6 +235,8 @@ gen_artik_release
 if [ "$PREBUILT_REPO_DIR" != "" ]; then
 	cp -rf $PREBUILT_REPO_DIR/* $TARGET_DIR/debs
 fi
+
+restrictive_pkg_check
 
 start_local_server $TARGET_DIR/debs $PORT
 
