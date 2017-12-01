@@ -186,6 +186,28 @@ MODEL=${upper_model}
 __EOF__
 }
 
+change_symlink_path()
+{
+	pushd $TARGET_DIR
+	symlink_sysroot=$(sudo find rootfs/ -type l -lname '/*')
+
+	for file in $symlink_sysroot
+	do
+		link=$(ls -l $file | awk '{print $11}')
+		tmp=(`echo $file | tr "/" "\n"`)
+		i=$((${#tmp[@]}-2))
+		if [ $i -eq 0 ]; then
+			link='.'$link
+		elif [ $i -gt 0 ]; then
+			link='..'$link
+		fi
+		link=$(seq -s "`echo -e ''`" $(($i-1)) | sed 's/./\.\.\//g')$link
+		sudo rm -rf $file
+		sudo ln -s $link $file
+	done
+	popd
+}
+
 trap abnormal_exit INT ERR
 trap 'error ${LINENO} ${?}' ERR
 
@@ -283,6 +305,8 @@ mkdir -p $TARGET_DIR/rootfs
 sudo tar zxf $TARGET_DIR/${UBUNTU_NAME}.tar.gz -C $TARGET_DIR/rootfs
 sudo mv $TARGET_DIR/artik_sysroot_release $TARGET_DIR/rootfs/
 sync
+
+change_symlink_path
 
 sudo tar zcf $TARGET_DIR/${UBUNTU_NAME}.tar.gz -C $TARGET_DIR/rootfs .
 sudo tar --exclude=usr/lib/python2.7 --exclude=usr/lib/python3.5 -zcf $TARGET_DIR/${UBUNTU_NAME}-IDE.tar.gz -C $TARGET_DIR/rootfs usr/include usr/lib lib
