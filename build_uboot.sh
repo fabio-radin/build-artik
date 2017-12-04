@@ -145,7 +145,10 @@ gen_nexell_image()
 
 check_rsa_sign_tool()
 {
-	if [ "${TARGET_BOARD}" == "artik530s" ] || [ "${TARGET_BOARD}" == "artik533s" ] || [ "${TARGET_BOARD}" == "artik710s" ]; then
+	if [ "${TARGET_BOARD}" == "artik305s" ] || \
+		[ "${TARGET_BOARD}" == "artik530s" ] || \
+		[ "${TARGET_BOARD}" == "artik533s" ] || \
+		[ "${TARGET_BOARD}" == "artik710s" ]; then
 		test -e $SECURE_PREBUILT_DIR/${TARGET_BOARD}_codesigner && cp -f $SECURE_PREBUILT_DIR/${TARGET_BOARD}_codesigner ${RSA_SIGN_TOOL}
 		if [ ! -e ${RSA_SIGN_TOOL} ]; then
 			echo -e "\e[1;31mERROR: cannot find ${RSA_SIGN_TOOL}\e[0m"
