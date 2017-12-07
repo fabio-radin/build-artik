@@ -201,7 +201,7 @@ change_symlink_path()
 		elif [ $i -gt 0 ]; then
 			link='..'$link
 		fi
-		link=$(seq -s "`echo -e ''`" $(($i-1)) | sed 's/./\.\.\//g')$link
+		link=$(seq -s../ $i | tr -d '[:digit:]')$link
 		sudo rm -rf $file
 		sudo ln -s $link $file
 	done
