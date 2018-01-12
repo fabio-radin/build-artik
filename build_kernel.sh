@@ -2,6 +2,8 @@
 
 set -e
 
+KERNEL_RELEASE=
+
 package_check()
 {
 	command -v $1 >/dev/null 2>&1 || { echo >&2 "${1} not installed. Aborting."; exit 1; }
@@ -41,16 +43,40 @@ build()
 
 build_modules()
 {
-	mkdir -p $TARGET_DIR/modules
-	make modules_install INSTALL_MOD_PATH=$TARGET_DIR/modules INSTALL_MOD_STRIP=1
+	KERNEL_RELEASE=$(cat include/config/kernel.release 2> /dev/null)
+	OBJCOPY=${CROSS_COMPILE}objcopy
+
+	tmpdir=$TARGET_DIR/modules
+	mkdir -p $tmpdir
+	make modules_install INSTALL_MOD_PATH=$TARGET_DIR/modules
+
+	rm -f $tmpdir/lib/modules/$KERNEL_RELEASE/build
+	rm -f $tmpdir/lib/modules/$KERNEL_RELEASE/source
+	rm -fr $tmpdir/lib/firmware
+
+	dbg_dir=$TARGET_DIR/modules_debug
+	mkdir -p $dbg_dir
+	for module in $(find $tmpdir/lib/modules/ -name *.ko -printf '%P\n'); do
+		module=lib/modules/$module
+		mkdir -p $(dirname $dbg_dir/usr/lib/debug/$module)
+		# only keep debug symbols in the debug file
+		$OBJCOPY --only-keep-debug $tmpdir/$module $dbg_dir/usr/lib/debug/$module
+		# strip original module from debug symbols
+		$OBJCOPY --strip-debug $tmpdir/$module
+		# then add a link to those
+		$OBJCOPY --add-gnu-debuglink=$dbg_dir/usr/lib/debug/$module $tmpdir/$module
+	done
+
 	make_ext4fs -b 4096 -L modules \
 		-l ${MODULE_SIZE}M ${TARGET_DIR}/modules.img \
 		${TARGET_DIR}/modules/lib/modules/
-	rm -rf ${TARGET_DIR}/modules
 }
 
 install_output()
 {
+	tmpdir=$TARGET_DIR/modules
+	dbg_dir=$TARGET_DIR/modules_debug
+
 	cp arch/$ARCH/boot/$KERNEL_IMAGE $TARGET_DIR
 	cp $DTB_PREFIX_DIR/$KERNEL_DTB $TARGET_DIR
 	cp vmlinux $TARGET_DIR
@@ -59,13 +85,22 @@ install_output()
 		mkdir -p $TARGET_DIR/overlays
 		cp $DTB_PREFIX_DIR/$KERNEL_DTBO $TARGET_DIR/overlays
 	fi
+
+	pushd $tmpdir
+	tar zcf $TARGET_DIR/linux-${TARGET_BOARD}-modules-${KERNEL_RELEASE}.tar.gz *
+	popd
+	rm -fr $tmpdir
+
+	pushd $dbg_dir
+	tar zcf $TARGET_DIR/linux-${TARGET_BOARD}-modules-${KERNEL_RELEASE}-dbg.tar.gz *
+	popd
+	rm -fr $dbg_dir
 }
 
 gen_version_info()
 {
-	KERNEL_VERSION=`make EXTRAVERSION="-$BUILD_VERSION" kernelrelease | grep -v scripts`
 	if [ -e $TARGET_DIR/artik_release ]; then
-		sed -i "s/_KERNEL=.*/_KERNEL=${KERNEL_VERSION}/" $TARGET_DIR/artik_release
+		sed -i "s/_KERNEL=.*/_KERNEL=${KERNEL_RELEASE}/" $TARGET_DIR/artik_release
 	fi
 }
 
