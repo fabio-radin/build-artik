@@ -259,7 +259,7 @@ if [ "$KMS_PREBUILT_DIR" == "false" ]; then
 
 if [ "$PREBUILT_VBOOT_DIR" == "" ]; then
 	./build_uboot.sh
-	./build_kernel.sh
+	./build_kernel.sh --kernel-headers
 
 	if $VERIFIED_BOOT ; then
 		if [ "$VBOOT_ITS" == "" ]; then
