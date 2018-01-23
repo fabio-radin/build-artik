@@ -125,6 +125,7 @@ build_package()
 				--host $BUILD_ARCH \
 				--extra-repository="deb [trusted=yes] http://localhost:$PORT ./" \
 				--anything-failed-commands="touch $dest_dir/.build_failed" \
+				--dpkg-source-opts="-I.git*" \
 				-j$JOBS --verbose
 			popd
 			move_build_output $dest_dir
