@@ -292,6 +292,9 @@ if $FULL_BUILD ; then
 
 	OS_OUTPUT_NAME=${OS_NAME}-arm-$OS_TARGET_BOARD-rootfs-$BUILD_VERSION-$BUILD_DATE
 	if [ "$OS_NAME" == "ubuntu" ]; then
+		# Build kernel debian package
+		fakeroot -u ./build_kernel_dpkg.sh -o $TARGET_DIR/debs
+
 		BUILD_ARCH=$ARCH
 		if [ "$BUILD_ARCH" == "arm" ]; then
 			BUILD_ARCH=armhf
