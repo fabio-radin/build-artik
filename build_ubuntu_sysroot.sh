@@ -180,7 +180,6 @@ gen_artik_release()
         upper_model=$(echo -n ${TARGET_BOARD} | awk '{print toupper($0)}')
 	cat > $TARGET_DIR/artik_sysroot_release << __EOF__
 OFFICIAL_VERSION=${OFFICIAL_VERSION}
-SDK_VERSION=${SDK_VERSION}
 BUILD_VERSION=${BUILD_VERSION}
 BUILD_DATE=${BUILD_DATE}
 MODEL=${upper_model}
@@ -221,18 +220,12 @@ then
         . $CONFIG_FILE
 fi
 
-. config/version/ubuntu_sysroot.cfg
-
 if [ "$BUILD_DATE" == "" ]; then
         BUILD_DATE=`date +"%Y%m%d.%H%M%S"`
 fi
 
 if [ "$BUILD_VERSION" == "" ]; then
         BUILD_VERSION="UNRELEASED"
-fi
-
-if [ "$SYSROOT_VERSION" == "" ]; then
-        SYSROOT_VERSION="00"
 fi
 
 export BUILD_DATE=$BUILD_DATE
@@ -291,7 +284,7 @@ if [ "$UBUNTU_MODULE_DEB_DIR" != "" ]; then
 fi
 
 IMG_DIR=../ubuntu-build-service/xenial-${BUILD_ARCH}-${TARGET_BOARD}
-UBUNTU_NAME=SYSROOT-ubuntu-arm-$TARGET_BOARD-rootfs-$BUILD_VERSION-$SYSROOT_VERSION-$BUILD_DATE
+UBUNTU_NAME=SYSROOT-ubuntu-arm-$TARGET_BOARD-rootfs-$BUILD_VERSION-$BUILD_DATE
 
 if [ "$IMG_DIR" != "" ]; then
 	echo "An ubuntu image generation starting..."
