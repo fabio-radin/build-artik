@@ -176,10 +176,10 @@ cd build-artik
 ```
 mkdir artik533s
 cd artik533s
-git clone https://github.com/SamsungARTIK/linux-artik.git -b A533s_os_3.0.0
-git clone https://github.com/SamsungARTIK/u-boot-artik.git -b A533s_os_3.0.0
-git clone https://github.com/SamsungARTIK/build-artik.git -b A533s_os_3.0.0
-git clone https://github.com/SamsungARTIK/boot-firmwares-artik533s.git -b A533s_os_3.0.0
+git clone https://github.com/SamsungARTIK/linux-artik.git -b A533s_os_3.2.0
+git clone https://github.com/SamsungARTIK/u-boot-artik.git -b A533s_os_3.2.0
+git clone https://github.com/SamsungARTIK/build-artik.git -b A533s_os_3.2.0
+git clone https://github.com/SamsungARTIK/boot-firmwares-artik533s.git -b A533s_os_3.2.0
 cd build-artik
 ```
 
@@ -327,6 +327,15 @@ repo sync
 mkdir artik530s_full
 cd artik530s_full
 repo init -u https://github.com/SamsungARTIK/manifest.git -b A530s_os_3.0.0 -m artik530s.xml
+repo sync
+```
+
+- artik530s 1G (artik533s)
+
+```
+mkdir artik533s_full
+cd artik533s_full
+repo init -u https://github.com/SamsungARTIK/manifest.git -b A533s_os_3.2.0 -m artik533s.xml
 repo sync
 ```
 
