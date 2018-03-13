@@ -156,7 +156,8 @@ check_restrictive_pkg()
 	if [ "${TARGET_BOARD}" == "artik305s" ] || \
 		[ "${TARGET_BOARD}" == "artik530s" ] || \
 		[ "${TARGET_BOARD}" == "artik533s" ] || \
-		[ "${TARGET_BOARD}" == "artik710s" ]; then
+		[ "${TARGET_BOARD}" == "artik710s" ] || \
+		[ "${TARGET_BOARD}" == "artik711s" ]; then
 		test ! -d $UBUNTU_MODULE_DEB_DIR && mkdir -p $UBUNTU_MODULE_DEB_DIR
 
 		if [ -d "$SECURE_PREBUILT_DIR" ]; then
