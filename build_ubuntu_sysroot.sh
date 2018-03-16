@@ -330,6 +330,31 @@ export CC="arm-linux-gnueabihf-gcc --sysroot=\$INSTALL_PATH/BUILDROOT"
 export LD="arm-linux-gnueabihf-ld --sysroot=\$INSTALL_PATH/BUILDROOT"
 export ARCH=arm
 export CROSS_COMPILE=arm-linux-gnueabihf-
+export TOOLCHAIN_FILE=\$INSTALL_PATH/toolchain.arm.cmake
+IN__EOF__
+cat > \$INSTALL_PATH/toolchain.arm.cmake << __EOF__
+SET(CMAKE_SYSTEM_NAME Linux)
+SET(CMAKE_SYSTEM_PROCESSOR arm)
+SET(CMAKE_C_COMPILER /usr/bin/arm-linux-gnueabihf-gcc)
+SET(CMAKE_CXX_COMPILER /usr/bin/arm-linux-gnueabihf-g++)
+SET(CMAKE_LINKER /usr/bin/arm-linux-gnueabihf-ld)
+SET(CMAKE_NM /usr/bin/arm-linux-gnueabihf-nm)
+SET(CMAKE_OBJCOPY /usr/bin/arm-linux-gnueabihf-objcopy)
+SET(CMAKE_OBJDUMP /usr/bin/arm-linux-gnueabihf-objdump)
+SET(CMAKE_RANLIB /usr/bin/arm-linux-gnueabihf-ranlib)
+
+SET(CMAKE_FIND_ROOT_PATH
+	$ENV{PKG_CONFIG_SYSROOT_DIR}
+)
+
+SET(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE ONLY)
+SET(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
+SET(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
+SET(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
+
+SET(CMAKE_SYSROOT
+	$ENV{PKG_CONFIG_SYSROOT_DIR}
+)
 IN__EOF__
 
 echo "Sysroot in extracted on \$INSTALL_PATH/sysroot_env\""
@@ -347,6 +372,31 @@ export CC="aarch64-linux-gnu-gcc --sysroot=\$INSTALL_PATH/BUILDROOT"
 export LD="aarch64-linux-gnu-ld --sysroot=\$INSTALL_PATH/BUILDROOT"
 export ARCH=arm64
 export CROSS_COMPILE=aarch64-linux-gnu-
+export TOOLCHAIN_FILE=\$INSTALL_PATH/toolchain.aarch64.cmake
+IN__EOF__
+cat > \$INSTALL_PATH/toolchain.aarch64.cmake << __EOF__
+SET(CMAKE_SYSTEM_NAME Linux)
+SET(CMAKE_SYSTEM_PROCESSOR aarch64)
+SET(CMAKE_C_COMPILER /usr/bin/aarch64-linux-gnu-gcc)
+SET(CMAKE_CXX_COMPILER /usr/bin/aarch64-linux-gnu-g++)
+SET(CMAKE_LINKER /usr/bin/aarch64-linux-gnu-ld)
+SET(CMAKE_NM /usr/bin/aarch64-linux-gnu-nm)
+SET(CMAKE_OBJCOPY /usr/bin/aarch64-linux-gnu-objcopy)
+SET(CMAKE_OBJDUMP /usr/bin/aarch64-linux-gnu-objdump)
+SET(CMAKE_RANLIB /usr/bin/aarch64-linux-gnu-ranlib)
+
+SET(CMAKE_FIND_ROOT_PATH
+	$ENV{PKG_CONFIG_SYSROOT_DIR}
+)
+
+SET(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE ONLY)
+SET(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
+SET(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
+SET(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
+
+SET(CMAKE_SYSROOT
+	$ENV{PKG_CONFIG_SYSROOT_DIR}
+)
 IN__EOF__
 
 echo "Sysroot in extracted on \$INSTALL_PATH/sysroot_env\""
