@@ -39,7 +39,12 @@ gen_envs()
 	${CROSS_COMPILE}objcopy -O binary --only-section=$UBOOT_ENV_SECTION \
 		`find . -name "copy_env_common.o"`
 
-	sed -e 's/$/\\/g' -e 's/\x0/\n/g' -e 's/\n\n\n.*/\n/g' ./copy_env_common.o > default_envs.txt
+	${CROSS_COMPILE}readelf -s `find . -name "env_common.o"` | \
+		grep default_environment | \
+		awk '{print "dd if=./copy_env_common.o of=./default_envs.bin bs=1 skip=$[0x" $2 "] count=" $3 }' | \
+		bash
+
+	sed -e '$!s/$/\\/g;s/\x0/\n/g' ./default_envs.bin > default_envs.txt
 	cp default_envs.txt default_envs.txt.orig
 	tools/mkenvimage -s 16384 -o params.bin default_envs.txt
 
