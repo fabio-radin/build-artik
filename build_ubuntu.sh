@@ -202,11 +202,7 @@ restrictive_pkg_check()
 	if [ -d "$SECURE_PREBUILT_DIR/debs" ]; then
 		cp -f $SECURE_PREBUILT_DIR/debs/*.deb $DEST_DIR/debs
 	fi
-	if [ "${TARGET_BOARD}" == "artik305s" ] || \
-		[ "${TARGET_BOARD}" == "artik530s" ] || \
-		[ "${TARGET_BOARD}" == "artik533s" ] || \
-		[ "${TARGET_BOARD}" == "artik710s" ] || \
-		[ "${TARGET_BOARD}" == "artik711s" ]; then
+	if [ "${TARGET_BOARD: -1}" == "s" ]; then
 		RESTRICTIVE_PKG_LIST=`cat config/${TARGET_BOARD}_secure.list`
 		for l in $RESTRICTIVE_PKG_LIST
 		do

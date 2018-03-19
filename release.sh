@@ -153,11 +153,7 @@ print_not_found()
 
 check_restrictive_pkg()
 {
-	if [ "${TARGET_BOARD}" == "artik305s" ] || \
-		[ "${TARGET_BOARD}" == "artik530s" ] || \
-		[ "${TARGET_BOARD}" == "artik533s" ] || \
-		[ "${TARGET_BOARD}" == "artik710s" ] || \
-		[ "${TARGET_BOARD}" == "artik711s" ]; then
+	if [ "${TARGET_BOARD: -1}" == "s" ]; then
 		test ! -d $UBUNTU_MODULE_DEB_DIR && mkdir -p $UBUNTU_MODULE_DEB_DIR
 
 		if [ -d "$SECURE_PREBUILT_DIR" ]; then
@@ -313,7 +309,7 @@ if $FULL_BUILD ; then
 			--dest-dir $TARGET_DIR $SKIP_UBUNTU_BUILD \
 			--prebuilt-dir ../ubuntu-build-service/prebuilt/$BUILD_ARCH \
 			--img-dir $UBUNTU_IMG_DIR \
-			-b ${BUILD_TARGET}
+			-b ${TARGET_BOARD}
 	else
 		if [ "$FEDORA_PREBUILT_RPM_DIR" != "" ]; then
 			PREBUILD_ADD_CMD="-r $FEDORA_PREBUILT_RPM_DIR"
