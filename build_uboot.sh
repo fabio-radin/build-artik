@@ -79,6 +79,7 @@ gen_envs()
 install_output()
 {
 	cp u-boot.bin $TARGET_DIR
+	[ -e u-boot-dtb.bin ] && cp u-boot-dtb.bin $TARGET_DIR
 	chmod 664 params.bin params_*.bin
 	cp params.bin params_* $TARGET_DIR
 	cp u-boot $TARGET_DIR
@@ -102,9 +103,12 @@ gen_version_info()
 
 gen_fip_image()
 {
+	SRC_BIN=$TARGET_DIR/u-boot-dtb.bin
+	[ -e $SRC_BIN ] || SRC_BIN=$TARGET_DIR/u-boot.bin
+
 	if [ "$UBOOT_IMAGE" == "fip-nonsecure.img" ]; then
 		$UBOOT_DIR/output/tools/fip_create/fip_create \
-			--dump --bl33 $TARGET_DIR/u-boot.bin \
+			--dump --bl33 $SRC_BIN \
 			$TARGET_DIR/fip-nonsecure.bin
 	fi
 }

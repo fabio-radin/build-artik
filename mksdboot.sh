@@ -138,6 +138,9 @@ fi
 
 SD_BOOT_SZ=`expr $ENV_OFFSET + 32`
 
+if [ "$UBOOT_IMAGE" == "u-boot.bin" ]; then
+	[ -e $TARGET_DIR/u-boot-dtb.bin ] && UBOOT_IMAGE="u-boot-dtb.bin"
+fi
 test -e $TARGET_DIR/$UBOOT_IMAGE || die
 
 case "$CHIP_NAME" in

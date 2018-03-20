@@ -271,7 +271,15 @@ install_output()
 		*)
 			sudo su -c "cp $TARGET_DIR/bl1.bin mnt"
 			sudo su -c "cp $TARGET_DIR/bl2.bin mnt"
-			sudo su -c "cp $TARGET_DIR/u-boot.bin mnt"
+
+			# if 'u-boot-dtb.bin' exists, use it,
+			# but the target name still needs to be 'u-boot.bin',
+			# because many other parts are hugely depending on it.
+			if [ -e $TARGET_DIR/u-boot-dtb.bin ]; then
+				sudo su -c "cp $TARGET_DIR/u-boot-dtb.bin mnt/u-boot.bin"
+			else
+				sudo su -c "cp $TARGET_DIR/u-boot.bin mnt/u-boot.bin"
+			fi
 			sudo su -c "cp $TARGET_DIR/tzsw.bin mnt"
 			;;
 		esac

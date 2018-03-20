@@ -116,6 +116,9 @@ fi
 
 SD_BOOT_SZ=`expr $ENV_OFFSET + 32`
 
+if [ "$UBOOT_IMAGE" == "u-boot.bin" ]; then
+	[ -e $KMS_PREBUILT_DIR/u-boot-dtb.bin-signed ] && UBOOT_IMAGE="u-boot-dtb.bin"
+fi
 test -e $KMS_PREBUILT_DIR/${UBOOT_IMAGE}-signed || die
 
 case "$CHIP_NAME" in

@@ -14,6 +14,7 @@ IP_ADDR=`cat $IP_FILE`
 
 #u-boot infomation
 UBOOT_NAME=u-boot.bin
+UBOOT_DTB_NAME=u-boot-dtb.bin
 UBOOT_PADD_NAME=u-boot-dtb_padd.bin
 UBOOT_TARGET_BIN=sboot-dtb.bin
 
@@ -34,7 +35,12 @@ pushd $OUTPUT_DIR
 #Add Zero Padding
 #---------------------------------------------
 #u-boot: Add padding(0x00) to u-boot image.
-cp $UBOOT_NAME $UBOOT_PADD_NAME
+if [ -e $UBOOT_DTB_NAME ]; then
+	# prefer to use u-boot-dtb.bin over u-boot.bin
+	cp $UBOOT_DTB_NAME $UBOOT_PADD_NAME
+else
+	cp $UBOOT_NAME $UBOOT_PADD_NAME
+fi
 truncate -s $U_BOOT_PADD_B $UBOOT_PADD_NAME
 #--------------------------------------------
 
