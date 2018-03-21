@@ -348,6 +348,10 @@ else
 	cp flash_all_by_fastboot.sh $TARGET_DIR
 fi
 
+if [ -e $PREBUILT_DIR/usb_recovery_${TARGET_BOARD}.sh ]; then
+	cp $PREBUILT_DIR/usb_recovery_${TARGET_BOARD}.sh $TARGET_DIR
+fi
+
 if [ -e $PREBUILT_DIR/usb-downloader ]; then
 	cp $PREBUILT_DIR/usb-downloader $TARGET_DIR
 	cp $PREBUILT_DIR/nsih-${TARGET_BOARD}.txt $TARGET_DIR
