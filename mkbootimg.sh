@@ -47,9 +47,15 @@ install_boot_image()
 	test -d mnt || mkdir mnt
 	sudo mount -o loop boot.img mnt
 
-	sudo sh -c "install -m 664 $TARGET_DIR/$KERNEL_IMAGE mnt"
-	sudo sh -c "install -m 664 $TARGET_DIR/$KERNEL_DTB mnt"
-	sudo sh -c "install -m 664 $TARGET_DIR/$RAMDISK_NAME mnt"
+	if [ "$VERIFIED_BOOT" == "false" ]; then
+		sudo sh -c "install -m 664 $TARGET_DIR/$KERNEL_IMAGE mnt"
+		sudo sh -c "install -m 664 $TARGET_DIR/$KERNEL_DTB mnt"
+		sudo sh -c "install -m 664 $TARGET_DIR/$RAMDISK_NAME mnt"
+	else
+		sudo sh -c "install -m 664 $TARGET_DIR/$FIT_IMAGE mnt"
+		# only for ARTIK-520 which FIT does not contain the ramdisk (should be removed)
+		sudo sh -c "install -m 664 $TARGET_DIR/$RAMDISK_NAME mnt"
+	fi
 
 	if [ "$OVERLAY" == "true" ]; then
 		test -d mnt/overlays || sudo mkdir mnt/overlays
