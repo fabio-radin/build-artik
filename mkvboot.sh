@@ -12,7 +12,8 @@ ITS_NAME=$(basename "$ITS_FILE")
 
 cp $ITS_FILE $OUTPUT_DIR
 pushd $OUTPUT_DIR
-./mkimage -f $ITS_NAME -K u-boot.dtb -k $KEY_DIR -r rsa_kernel.fit
+./mkimage -f $ITS_NAME rsa_kernel.fit
+./mkimage -k $KEY_DIR -r -F -K u-boot.dtb rsa_kernel.fit
 
 # Copy verified boot files to original files
 cp rsa_kernel.fit zImage
