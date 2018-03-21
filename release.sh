@@ -358,6 +358,11 @@ if [ -e $PREBUILT_DIR/usb-downloader ]; then
 	cp $PREBUILT_DIR/usb_recovery.sh $TARGET_DIR
 fi
 
+#For ARTIK711s
+if [ -e $PREBUILT_DIR/usb_to_sd_boot.sh ]; then
+	cp $PREBUILT_DIR/usb_to_sd_boot.sh $TARGET_DIR
+fi
+
 cp expand_rootfs.sh $TARGET_DIR
 
 if [ -e $PREBUILT_DIR/$TARGET_BOARD/u-boot-recovery.bin ]; then
