@@ -10,6 +10,9 @@ UBOOT_DIR=`pwd`/../u-boot-artik
 
 ITS_NAME=$(basename "$ITS_FILE")
 
+# create initrd.gz from uInitrd
+dd if=$INITRD of=$OUTPUT_DIR/initrd.gz bs=1 skip=64
+
 cp $ITS_FILE $OUTPUT_DIR
 pushd $OUTPUT_DIR
 ./mkimage -f $ITS_NAME rsa_kernel.fit
