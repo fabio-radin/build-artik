@@ -19,7 +19,6 @@ pushd $OUTPUT_DIR
 ./mkimage -k $KEY_DIR -r -F -K u-boot.dtb $FIT_IMAGE
 
 # Copy verified boot files to original files
-cp $FIT_IMAGE zImage
 cat u-boot.bin u-boot.dtb > u-boot-dtb.bin
 cp params_vboot.bin params.bin
 cp params_recovery_vboot.bin params_recovery.bin
