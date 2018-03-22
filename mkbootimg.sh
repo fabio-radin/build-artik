@@ -32,38 +32,41 @@ die() {
 
 gen_boot_image()
 {
-	dd if=/dev/zero of=boot.img bs=1M count=$BOOT_SIZE
 	if [ "$BOOT_PART_TYPE" == "vfat" ]; then
+		dd if=/dev/zero of=boot.img bs=1M count=$BOOT_SIZE
 		sudo sh -c "mkfs.vfat -n boot boot.img"
-	else
-		if [ "$BOOT_PART_TYPE" == "ext4" ]; then
-			sudo sh -c "mkfs.ext4 -F -L boot -b 4096 boot.img"
-		fi
 	fi
 }
 
 install_boot_image()
 {
 	test -d mnt || mkdir mnt
-	sudo mount -o loop boot.img mnt
 
 	if [ "$VERIFIED_BOOT" == "false" ]; then
-		sudo sh -c "install -m 664 $TARGET_DIR/$KERNEL_IMAGE mnt"
-		sudo sh -c "install -m 664 $TARGET_DIR/$KERNEL_DTB mnt"
-		sudo sh -c "install -m 664 $TARGET_DIR/$RAMDISK_NAME mnt"
+		install -m 664 $TARGET_DIR/$KERNEL_IMAGE mnt
+		install -m 664 $TARGET_DIR/$KERNEL_DTB mnt
+		install -m 664 $TARGET_DIR/$RAMDISK_NAME mnt
 	else
-		sudo sh -c "install -m 664 $TARGET_DIR/$FIT_IMAGE mnt"
+		install -m 664 $TARGET_DIR/$FIT_IMAGE mnt
 		# only for ARTIK-520 which FIT does not contain the ramdisk (should be removed)
-		sudo sh -c "install -m 664 $TARGET_DIR/$RAMDISK_NAME mnt"
+		install -m 664 $TARGET_DIR/$RAMDISK_NAME mnt
 	fi
 
 	if [ "$OVERLAY" == "true" ]; then
-		test -d mnt/overlays || sudo mkdir mnt/overlays
-		sudo sh -c "install -m 644 $TARGET_DIR/$KERNEL_DTBO mnt/overlays"
+		test -d mnt/overlays || mkdir mnt/overlays
+		install -m 644 $TARGET_DIR/$KERNEL_DTBO mnt/overlays
 	fi
 
-	sync; sync;
-	sudo umount mnt
+	if [ "$BOOT_PART_TYPE" == "vfat" ]; then
+		test -d boot_mnt || mkdir boot_mnt
+		sudo mount -o loop boot.img boot_mnt
+		sudo cp -rf mnt/* boot_mnt/
+		sync; sync;
+		sudo umount boot_mnt
+		rm -rf boot_mnt
+	else
+		make_ext4fs -b 4096 -L boot -l ${BOOT_SIZE}M boot.img mnt
+	fi
 
 	rm -rf mnt
 }
