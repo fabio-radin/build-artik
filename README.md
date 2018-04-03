@@ -122,10 +122,10 @@ cd build-artik
 ```
 mkdir artik710s
 cd artik710s
-git clone https://github.com/SamsungARTIK/linux-artik.git -b A710s_os_3.0.0
-git clone https://github.com/SamsungARTIK/u-boot-artik.git -b A710s_os_3.0.0
-git clone https://github.com/SamsungARTIK/build-artik.git -b A710s_os_3.0.0
-git clone https://github.com/SamsungARTIK/boot-firmwares-artik710s.git -b A710s_os_3.0.0
+git clone https://github.com/SamsungARTIK/linux-artik.git -b A710s_os_3.2.0
+git clone https://github.com/SamsungARTIK/u-boot-artik.git -b A710s_os_3.2.0
+git clone https://github.com/SamsungARTIK/build-artik.git -b A710s_os_3.2.0
+git clone https://github.com/SamsungARTIK/boot-firmwares-artik710s.git -b A710s_os_3.2.0
 cd build-artik
 ```
 
@@ -308,7 +308,7 @@ repo sync
 ```
 mkdir artik710s_full
 cd artik710s_full
-repo init -u https://github.com/SamsungARTIK/manifest.git -b A710s_os_3.0.0 -m artik710s.xml
+repo init -u https://github.com/SamsungARTIK/manifest.git -b A710s_os_3.2.0 -m artik710s.xml
 repo sync
 ```
 
