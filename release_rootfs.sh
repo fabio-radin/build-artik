@@ -19,12 +19,29 @@ urlencode() {
     done
 }
 
-ROOTFS_TAG=$(urlencode "$ROOTFS_TAG")
-ROOTFS_FILE=$(urlencode "$ROOTFS_FILE")
+retrieve_rootfs_fileinfo()
+{
+	ROOTFS_TAG=$(urlencode release/${OFFICIAL_VERSION})
+	ROOTFS_FILE=`curl -s ${ROOTFS_BASE_URL}/tag/${ROOTFS_TAG} | grep -e ".*download/${ROOTFS_TAG}" | sed -e 's|.*download\/.*\/\([^\"]*\).*$|\1|'`
+	# Try to find a rootfs tarball from previous version
+	if [ "$ROOTFS_FILE" == "" ]; then
+		ROOTFS_TAG=$(urlencode release/${PREVIOUS_VERSION})
+		ROOTFS_FILE=`curl -s ${ROOTFS_BASE_URL}/tag/${ROOTFS_TAG} | grep -e ".*download/${ROOTFS_TAG}" | sed -e 's|.*download\/.*\/\([^\"]*\).*$|\1|'`
+	fi
+	if [ "$ROOTFS_FILE" == "" ]; then
+		echo "Cannot find root filesystem tarball"
+		exit 1
+	fi
+	ROOTFS_FILE_MD5=$(echo $ROOTFS_FILE | sed -e 's/.*[0-9][0-9][0-9][0-9][0-9][0-9]-\([^\.]*\).*/\1/')
+}
+
+if [ "$ROOTFS_FILE_MD5" == "" ]; then
+	retrieve_rootfs_fileinfo
+fi
 
 if [ ! -f $PREBUILT_DIR/$ROOTFS_FILE ]; then
 	echo "Not found rootfs. Download it"
-	wget ${ROOTFS_BASE_URL}/${ROOTFS_TAG}/${ROOTFS_FILE} -O $PREBUILT_DIR/$ROOTFS_FILE
+	wget ${ROOTFS_BASE_URL}/download/${ROOTFS_TAG}/${ROOTFS_FILE} -O $PREBUILT_DIR/$ROOTFS_FILE
 fi
 
 while :
@@ -35,7 +52,7 @@ do
 	fi
 
 	echo "Mismatch MD5 hash. Just download again"
-	wget ${ROOTFS_BASE_URL}/${ROOTFS_TAG}/${ROOTFS_FILE} -O $PREBUILT_DIR/$ROOTFS_FILE
+	wget ${ROOTFS_BASE_URL}/download/${ROOTFS_TAG}/${ROOTFS_FILE} -O $PREBUILT_DIR/$ROOTFS_FILE
 
 	CHECK_COUNT=$((CHECK_COUNT + 1))
 
