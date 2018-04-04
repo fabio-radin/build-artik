@@ -127,7 +127,8 @@ gen_nexell_image()
 			;;
 		s5p4418)
 			nsih_name=raptor-sd.txt
-			input_file=u-boot.bin
+			input_file=u-boot-dtb.bin
+			[ -e $TARGET_DIR/$input_file ] || input_file=u-boot.bin
 			output_file=$UBOOT_IMAGE
 			gen_tool=SECURE_BINGEN
 			launch_addr=$FIP_LOAD_ADDR
