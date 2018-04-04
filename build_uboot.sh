@@ -122,14 +122,12 @@ gen_nexell_image()
 			nsih_name=raptor-64.txt
 			input_file=fip-nonsecure.bin
 			output_file=fip-nonsecure.img
-			hash_file=fip-nonsecure.bin.hash
 			gen_tool=SECURE_BINGEN
 			launch_addr=0x00000000
 			;;
 		s5p4418)
 			nsih_name=raptor-sd.txt
 			input_file=u-boot.bin
-			hash_file=u-boot.bin.hash
 			output_file=$UBOOT_IMAGE
 			gen_tool=SECURE_BINGEN
 			launch_addr=$FIP_LOAD_ADDR
