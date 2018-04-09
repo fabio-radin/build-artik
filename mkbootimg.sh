@@ -47,8 +47,6 @@ install_boot_image()
 
 	if [ "$VERIFIED_BOOT" == "true" ]; then
 		install -m 664 $TARGET_DIR/$FIT_IMAGE mnt
-		# only for ARTIK-520 which FIT does not contain the ramdisk (should be removed)
-		install -m 664 $TARGET_DIR/$RAMDISK_NAME mnt
 	else
 		install -m 664 $TARGET_DIR/$KERNEL_IMAGE mnt
 		install -m 664 $TARGET_DIR/$KERNEL_DTB mnt
