@@ -226,6 +226,10 @@ package_check kpartx kpartx
 package_check make_ext4fs android-tools-fsutils
 package_check arm-linux-gnueabihf-gcc gcc-arm-linux-gnueabihf
 
+if [ "$VERIFIED_BOOT" = "true" ]; then
+	package_check veritysetup cryptsetup-bin
+fi
+
 if [ "$CONFIG_FILE" != "" ]
 then
 	. $CONFIG_FILE

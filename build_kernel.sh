@@ -72,9 +72,33 @@ build_modules()
 		$OBJCOPY --add-gnu-debuglink=$dbg_dir/usr/lib/debug/$module $tmpdir/$module
 	done
 
-	make_ext4fs -b 4096 -L modules \
-		-l ${MODULE_SIZE}M ${TARGET_DIR}/modules.img \
+	blocksize=4096
+	reserved=0
+	if [ "${VERIFIED_BOOT}" = "true" ]; then
+		# if verified boot, reserve blocks for hashtree
+		# 66 blocks covers volumes exactly up to 32Mbytes
+		reserved=$((66 * $blocksize))
+	fi
+	modulefs_size=$((${MODULE_SIZE} * 1024 * 1024 - $reserved))
+
+	make_ext4fs -b $blocksize -L modules \
+		-l $modulefs_size ${TARGET_DIR}/modules.img \
 		${TARGET_DIR}/modules/lib/modules/
+
+	# append hashtree at the end of the ext4 volume
+	if [ "${VERIFIED_BOOT}" = "true" ]; then
+		veritysetup \
+			--no-superblock \
+			--data-block-size=$blocksize \
+			--data-blocks=$(($modulefs_size / $blocksize)) \
+			--hash-offset=$(($modulefs_size)) \
+			format ${TARGET_DIR}/modules.img ${TARGET_DIR}/modules.img | \
+		tee ${TARGET_DIR}/modules.img.verity
+
+		# adjust the size of modules.img to ${MODULE_SIZE}Mbytes
+		fallocate -l $((${MODULE_SIZE} * 1024 * 1024)) \
+			${TARGET_DIR}/modules.img
+	fi
 }
 
 build_kernel_header()
