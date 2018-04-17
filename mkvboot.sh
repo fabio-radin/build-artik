@@ -13,6 +13,17 @@ ITS_NAME=$(basename "$ITS_FILE")
 # create initrd.gz from uInitrd
 dd if=$INITRD of=$OUTPUT_DIR/initrd.gz bs=1 skip=64
 
+# extract initrd and repackage it after copying dm-verity information
+pushd $OUTPUT_DIR
+mkdir initrd
+cd initrd;
+zcat $OUTPUT_DIR/initrd.gz | cpio -ivd
+cp $OUTPUT_DIR/modules.img.verity ./
+find . | cpio -o -H newc | gzip > $OUTPUT_DIR/initrd.gz
+cd ../
+rm -rf initrd
+popd
+
 cp $ITS_FILE $OUTPUT_DIR
 pushd $OUTPUT_DIR
 ./mkimage -f $ITS_NAME $FIT_IMAGE
