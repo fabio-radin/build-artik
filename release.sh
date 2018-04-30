@@ -154,6 +154,9 @@ print_not_found()
 check_restrictive_pkg()
 {
 	if [ "${TARGET_BOARD: -1}" == "s" ]; then
+		if [ "$UBUNTU_MODULE_DEB_DIR" == "" ]; then
+			UBUNTU_MODULE_DEB_DIR=$TARGET_DIR/debs
+		fi
 		test ! -d $UBUNTU_MODULE_DEB_DIR && mkdir -p $UBUNTU_MODULE_DEB_DIR
 
 		if [ -d "$SECURE_PREBUILT_DIR" ]; then
@@ -305,17 +308,31 @@ if $FULL_BUILD ; then
 		if [ "$UBUNTU_MODULE_DEB_DIR" != "" ]; then
 			PREBUILT_MODULE_OPT="--prebuilt-module-dir $UBUNTU_MODULE_DEB_DIR"
 		fi
-		UBUNTU_IMG_DIR=../ubuntu-build-service/xenial-${BUILD_ARCH}-${OS_TARGET_BOARD}
-		./build_ubuntu.sh -p ${UBUNTU_PACKAGE_FILE} \
-			--ubuntu-name $OS_OUTPUT_NAME \
-			$PREBUILT_REPO_OPT \
-			$PREBUILT_MODULE_OPT \
-			$WITH_E2E \
-			--arch $BUILD_ARCH --chroot xenial-amd64-${BUILD_ARCH} \
-			--dest-dir $TARGET_DIR $SKIP_UBUNTU_BUILD \
-			--prebuilt-dir ../ubuntu-build-service/prebuilt/$BUILD_ARCH \
-			--img-dir $UBUNTU_IMG_DIR \
-			-b ${TARGET_BOARD}
+		if [ "$UBUNTU_IMG_DIR" == "" ]; then
+			UBUNTU_IMG_DIR=../ubuntu-build-service/xenial-${BUILD_ARCH}-${OS_TARGET_BOARD}
+		fi
+		if [ "$UBUNTU_VERSION" == "bionic" ]; then
+			# We'll not support ubuntu package build anymore since bionic release
+			./build_ubuntu.sh --ubuntu-name $OS_OUTPUT_NAME \
+				--arch $BUILD_ARCH \
+				--dest-dir $TARGET_DIR \
+				--skip-build \
+				--prebuilt-dir ../ubuntu-packages/$UBUNTU_VERSION \
+				--img-dir $UBUNTU_IMG_DIR \
+				-b ${TARGET_BOARD}
+
+		else
+			./build_ubuntu.sh -p ${UBUNTU_PACKAGE_FILE} \
+				--ubuntu-name $OS_OUTPUT_NAME \
+				$PREBUILT_REPO_OPT \
+				$PREBUILT_MODULE_OPT \
+				$WITH_E2E \
+				--arch $BUILD_ARCH --chroot xenial-amd64-${BUILD_ARCH} \
+				--dest-dir $TARGET_DIR $SKIP_UBUNTU_BUILD \
+				--prebuilt-dir ../ubuntu-build-service/prebuilt/$BUILD_ARCH \
+				--img-dir $UBUNTU_IMG_DIR \
+				-b ${TARGET_BOARD}
+		fi
 	else
 		if [ "$FEDORA_PREBUILT_RPM_DIR" != "" ]; then
 			PREBUILD_ADD_CMD="-r $FEDORA_PREBUILT_RPM_DIR"

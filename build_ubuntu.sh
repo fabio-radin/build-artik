@@ -276,7 +276,7 @@ if [ "$IMG_DIR" != "" ]; then
 	echo "An ubuntu image generation starting..."
 	pushd $IMG_DIR
 	make clean
-	WITH_E2E=$WITH_E2E PORT=$PORT ./configure
+	ARCH=${ARCH} ARTIK_MODEL=${TARGET_BOARD} WITH_E2E=$WITH_E2E PORT=$PORT ./configure
 	make IMAGEPREFIX=$UBUNTU_NAME
 	mv $UBUNTU_NAME* $DEST_DIR
 	echo "A new ubuntu image has been created"
