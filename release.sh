@@ -160,24 +160,25 @@ check_restrictive_pkg()
 			cp -f $SECURE_PREBUILT_DIR/${TARGET_BOARD}_codesigner $PREBUILT_DIR
 			cp -f $SECURE_PREBUILT_DIR/${SECURE_OS_FILE} $PREBUILT_DIR
 			cp -f $SECURE_PREBUILT_DIR/debs/*.deb $UBUNTU_MODULE_DEB_DIR
-		fi
-		RESTRICTIVE_PKG_LIST=`cat config/${TARGET_BOARD}_secure.list`
-		for l in $RESTRICTIVE_PKG_LIST
-		do
-			if [ ! -f $l ]; then
-				if $FULL_BUILD; then
-					print_not_found $l
-					exit 1
-				else
-					if [ "${l##*.}" == "deb" ]; then
-						continue
-					else
+		else
+			RESTRICTIVE_PKG_LIST=`cat config/${TARGET_BOARD}_secure.list`
+			for l in $RESTRICTIVE_PKG_LIST
+			do
+				if [ ! -f $l ]; then
+					if $FULL_BUILD; then
 						print_not_found $l
 						exit 1
+					else
+						if [ "${l##*.}" == "deb" ]; then
+							continue
+						else
+							print_not_found $l
+							exit 1
+						fi
 					fi
 				fi
-			fi
-		done
+			done
+		fi
 	fi
 }
 
