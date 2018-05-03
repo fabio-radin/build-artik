@@ -197,27 +197,27 @@ find_unused_port()
 	done
 }
 
+print_not_found()
+{
+	echo -e "\e[1;31mERROR: cannot find ${1}\e[0m"
+	echo -e "\e[1;31mBuild process has been terminated since the mandatory security binaries do not exist in your source code.\e[0m"
+	echo -e "\e[1;31mPlease download those files from artik.io with SLA agreement to continue to build.\e[0m"
+	echo -e "\e[1;31mOnce you download those files, please locate them to the following path."
+	echo -e ""
+	echo -e "\e[1;31m1. create security-firmwares-${TARGET_BOARD} directory\e[0m"
+	echo -e "\e[1;31m   mkdir -p ../security-firmwares-${TARGET_BOARD}/\e[0m"
+	echo -e "\e[1;31m2. extract the zip file into the security-firmwares-${TARGET_BOARD} directory"
+}
+
 restrictive_pkg_check()
 {
-	if [ -d "$SECURE_PREBUILT_DIR/debs" ]; then
-		cp -f $SECURE_PREBUILT_DIR/debs/*.deb $DEST_DIR/debs
-	fi
 	if [ "${TARGET_BOARD: -1}" == "s" ]; then
-		RESTRICTIVE_PKG_LIST=`cat config/${TARGET_BOARD}_secure.list`
-		for l in $RESTRICTIVE_PKG_LIST
-		do
-			if [ "${l##*.}" == "deb" ] && [ ! -f $l ]; then
-				echo -e "\e[1;31mERROR: cannot find ${l}\e[0m"
-				echo -e "\e[1;31mBuild process has been terminated since the mandatory security binaries do not exist in your source code.\e[0m"
-				echo -e "\e[1;31mPlease download those files from artik.io with SLA agreement to continue to build.\e[0m"
-				echo -e "\e[1;31mOnce you download those files, please locate them to the following path.\e[0m"
-				echo -e ""
-				echo -e "\e[1;31mdeb files\e[0m"
-				echo -e "\e[1;31mcopy to ../ubuntu-build-service/prebuilt/${ARCH}/${TARGET_BOARD}/\e[0m"
-
-				exit 1
-			fi
-		done
+		if [ -d "$SECURE_PREBUILT_DIR" ]; then
+			cp -f $SECURE_PREBUILT_DIR/debs/*.deb $DEST_DIR/debs
+		else
+			print_not_found $SECURE_PREBUILT_DIR
+			exit 1
+		fi
 	fi
 }
 
