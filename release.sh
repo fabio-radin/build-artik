@@ -311,16 +311,16 @@ if $FULL_BUILD ; then
 		if [ "$UBUNTU_IMG_DIR" == "" ]; then
 			UBUNTU_IMG_DIR=../ubuntu-build-service/xenial-${BUILD_ARCH}-${OS_TARGET_BOARD}
 		fi
-		if [ "$UBUNTU_VERSION" == "bionic" ]; then
+		if [ "$UBUNTU_VERSION" != "" ]; then
 			# We'll not support ubuntu package build anymore since bionic release
 			./build_ubuntu.sh --ubuntu-name $OS_OUTPUT_NAME \
+				$WITH_E2E \
 				--arch $BUILD_ARCH \
 				--dest-dir $TARGET_DIR \
 				--skip-build \
 				--prebuilt-dir ../ubuntu-packages/$UBUNTU_VERSION \
 				--img-dir $UBUNTU_IMG_DIR \
 				-b ${TARGET_BOARD}
-
 		else
 			./build_ubuntu.sh -p ${UBUNTU_PACKAGE_FILE} \
 				--ubuntu-name $OS_OUTPUT_NAME \
