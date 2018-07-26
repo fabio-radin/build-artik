@@ -209,18 +209,6 @@ print_not_found()
 	echo -e "\e[1;31m2. extract the zip file into the security-firmwares-${TARGET_BOARD} directory"
 }
 
-restrictive_pkg_check()
-{
-	if [ "${TARGET_BOARD: -1}" == "s" ]; then
-		if [ -d "$SECURE_PREBUILT_DIR" ]; then
-			cp -f $SECURE_PREBUILT_DIR/debs/*.deb $DEST_DIR/debs
-		else
-			print_not_found $SECURE_PREBUILT_DIR
-			exit 1
-		fi
-	fi
-}
-
 trap abnormal_exit INT ERR
 
 package_check sbuild sponge python3
@@ -236,8 +224,6 @@ fi
 if [ "$PREBUILT_REPO_DIR" != "" ]; then
 	cp -rf $PREBUILT_REPO_DIR/* $DEST_DIR/debs
 fi
-
-restrictive_pkg_check
 
 start_local_server $DEST_DIR/debs $PORT
 
