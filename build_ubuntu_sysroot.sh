@@ -259,20 +259,6 @@ fi
 
 popd
 
-PREBUILT_DIR=../ubuntu-build-service/prebuilt/$BUILD_ARCH
-
-if [ -d $PREBUILT_DIR ]; then
-	echo "Copy prebuilt packages"
-	cp -f $PREBUILT_DIR/*.deb $TARGET_DIR/debs
-	gen_ubuntu_meta $TARGET_DIR/debs artik-local repo
-fi
-
-if [ "$UBUNTU_MODULE_DEB_DIR" != "" ]; then
-        echo "Copy prebuilt packages"
-        cp -f $UBUNTU_MODULE_DEB_DIR/*.deb $TARGET_DIR/debs
-        gen_ubuntu_meta $TARGET_DIR/debs artik-local repo
-fi
-
 IMG_DIR=../ubuntu-build-service/xenial-${BUILD_ARCH}-${TARGET_BOARD}
 UBUNTU_NAME=SYSROOT-ubuntu-arm-$TARGET_BOARD-rootfs-$BUILD_VERSION-$BUILD_DATE
 
