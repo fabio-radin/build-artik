@@ -271,8 +271,13 @@ if [ "$IMG_DIR" != "" ]; then
 	mv $UBUNTU_NAME* $TARGET_DIR
 fi
 
+# modify artik_sysroot_release
 mkdir -p $TARGET_DIR/rootfs
 sudo tar zxf $TARGET_DIR/${UBUNTU_NAME}.tar.gz -C $TARGET_DIR/rootfs
+dpkg_list=`sudo chroot ${TARGET_DIR}/rootfs /bin/bash -c "dpkg -l | grep libartik-sdk"`
+dpkg_array=(${dpkg_list// / })
+SDK_VERSION=${dpkg_array[2]}
+echo "SDK_VERSION=${SDK_VERSION}" | sudo tee --append $TARGET_DIR/artik_sysroot_release
 sudo mv $TARGET_DIR/artik_sysroot_release $TARGET_DIR/rootfs/
 sync
 
