@@ -1,12 +1,15 @@
 #!/bin/bash
 
-set -e
+set -ex
 
 BUILDCONFIG=
+ARCH=armhf
 SBUILD_CONF=~/.sbuildrc
+TARGET_DIR=
 PORT=
 SKIP_BUILD=false
 PREBUILT_REPO_DIR=
+TARGET_BOARD=
 
 print_usage()
 {
@@ -15,9 +18,12 @@ print_usage()
 	echo "-c/--config       Config file path to build ex) -c config/artik5.cfg"
 	echo "--chroot		Chroot name"
 	echo "-C|--sbuild-conf	Sbuild configuration path"
+	echo "-D|--dest-dir     Build output directory"
 	echo "-s|--server-port	Server port"
 	echo "--skip-build	Skip package build"
 	echo "--use-prebuilt-repo	Use prebuilt repository"
+	echo "-n|--ubuntu-name  Ubuntu image name"
+	echo "-b [TARGET_BOARD] Target board ex) -b artik710|artik530|artik5|artik10"
 	exit 0
 }
 
@@ -29,14 +35,20 @@ parse_options()
 			-h|--help)
 				print_usage
 				shift ;;
+			-A|--arch)
+		                ARCH="$2"
+				shift ;;
 			-c|--config)
-                                CONFIG_FILE="$2"
-                                shift ;;
+				CONFIG_FILE="$2"
+				shift ;;
 			--chroot)
 				CHROOT="$2"
 				shift ;;
 			-C|--sbuild-conf)
 				SBUILD_CONF=`readlink -e "$2"`
+		                shift ;;
+			-D|--dest-dir)
+				DEST_DIR=`readlink -e "$2"`
 				shift ;;
 			-s|--server-port)
 				PORT="$2"
@@ -46,6 +58,9 @@ parse_options()
 				shift ;;
 			--use-prebuilt-repo)
 				PREBUILT_REPO_DIR=`readlink -e "$2"`
+				shift ;;
+			-b)
+				TARGET_BOARD="$2"
 				shift ;;
 			*)
 				shift ;;
@@ -220,6 +235,11 @@ if [ "$BUILD_VERSION" == "" ]; then
         BUILD_VERSION="UNRELEASED"
 fi
 
+if [ "$TARGET_DIR" == "" ]; then
+        ARTIK_BUILD_DIR=`pwd`
+        TARGET_DIR="$ARTIK_BUILD_DIR/output/images"
+fi
+
 export BUILD_DATE=$BUILD_DATE
 export BUILD_VERSION=$BUILD_VERSION
 
@@ -246,11 +266,10 @@ fi
 
 start_local_server $TARGET_DIR/debs $PORT
 
-UBUNTU_PACKAGES=`cat ${UBUNTU_PACKAGE_FILE}`
-
 pushd ../
 
 if ! $SKIP_BUILD; then
+	UBUNTU_PACKAGES=`cat ${UBUNTU_PACKAGE_FILE}`
 	for pkg in $UBUNTU_PACKAGES
 	do
 		build_package $pkg $TARGET_DIR/debs
@@ -259,7 +278,12 @@ fi
 
 popd
 
-IMG_DIR=../ubuntu-build-service/xenial-${BUILD_ARCH}-${TARGET_BOARD}
+if [ "$TARGET_BOARD" == "artik310s" ]; then
+	IMG_DIR=../ubuntu-build-service/bionic-artik
+else
+	IMG_DIR=../ubuntu-build-service/xenial-${BUILD_ARCH}-${TARGET_BOARD}
+fi
+
 UBUNTU_NAME=SYSROOT-ubuntu-arm-$TARGET_BOARD-rootfs-$BUILD_VERSION-$BUILD_DATE
 
 if [ "$IMG_DIR" != "" ]; then
@@ -274,10 +298,14 @@ fi
 # modify artik_sysroot_release
 mkdir -p $TARGET_DIR/rootfs
 sudo tar zxf $TARGET_DIR/${UBUNTU_NAME}.tar.gz -C $TARGET_DIR/rootfs
-dpkg_list=`sudo chroot ${TARGET_DIR}/rootfs /bin/bash -c "dpkg -l | grep libartik-sdk"`
-dpkg_array=(${dpkg_list// / })
-SDK_VERSION=${dpkg_array[2]}
-echo "SDK_VERSION=${SDK_VERSION}" | sudo tee --append $TARGET_DIR/artik_sysroot_release
+
+if [ "$TARGET_BOARD" != "artik310s" ]; then
+	dpkg_list=`sudo chroot ${TARGET_DIR}/rootfs /bin/bash -c "dpkg -l | grep libartik-sdk"`
+	dpkg_array=(${dpkg_list// / })
+	SDK_VERSION=${dpkg_array[2]}
+	echo "SDK_VERSION=${SDK_VERSION}" | sudo tee --append $TARGET_DIR/artik_sysroot_release
+fi
+
 sudo mv $TARGET_DIR/artik_sysroot_release $TARGET_DIR/rootfs/
 sync
 
