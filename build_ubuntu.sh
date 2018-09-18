@@ -16,6 +16,7 @@ UBUNTU_NAME=
 PREBUILT_REPO_DIR=
 TARGET_BOARD=
 WITH_E2E=false
+UBUNTU_VERSION=xenial
 
 print_usage()
 {
@@ -33,6 +34,7 @@ print_usage()
 	echo "--with-e2e	Include E2E pacakges"
 	echo "--img-dir		Image generation directory"
 	echo "-n|--ubuntu-name	Ubuntu image name"
+	echo "--ubuntu-version Ubuntu version ex) --ubuntu-version bionic|xenial"
 	echo "-b [TARGET_BOARD]	Target board ex) -b artik710|artik530|artik5|artik10"
 	exit 0
 }
@@ -83,6 +85,9 @@ parse_options()
 				shift ;;
 			-n|--ubuntu-name)
 				UBUNTU_NAME="$2"
+				shift ;;
+			--ubuntu-version)
+				UBUNTU_VERSION="$2"
 				shift ;;
 			-b)
 				TARGET_BOARD="$2"
@@ -254,7 +259,7 @@ fi
 
 if [ "$WITH_E2E" == "true" ] && [ "$E2E_PLUGIN_DIR" != "" ]; then
 	echo "Copy E2E packages"
-	cp -f ${E2E_PLUGIN_DIR}/ubuntu/${ARCH}/*.deb $DEST_DIR/debs
+	cp -f ${E2E_PLUGIN_DIR}/ubuntu/${UBUNTU_VERSION}/${ARCH}/*.deb $DEST_DIR/debs
 	gen_ubuntu_meta $DEST_DIR/debs artik-local repo
 fi
 
