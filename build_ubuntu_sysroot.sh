@@ -237,7 +237,7 @@ fi
 
 if [ "$TARGET_DIR" == "" ]; then
         ARTIK_BUILD_DIR=`pwd`
-        TARGET_DIR="$ARTIK_BUILD_DIR/output/images"
+        TARGET_DIR="$ARTIK_BUILD_DIR/output/images/${TARGET_BOARD}"
 fi
 
 export BUILD_DATE=$BUILD_DATE
