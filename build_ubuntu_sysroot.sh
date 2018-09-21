@@ -23,6 +23,7 @@ print_usage()
 	echo "--skip-build	Skip package build"
 	echo "--use-prebuilt-repo	Use prebuilt repository"
 	echo "-n|--ubuntu-name  Ubuntu image name"
+	echo "--ubuntu-version Ubuntu version ex) --ubuntu-version bionic|xenial"
 	echo "-b [TARGET_BOARD] Target board ex) -b artik710|artik530|artik5|artik10"
 	exit 0
 }
@@ -58,6 +59,9 @@ parse_options()
 				shift ;;
 			--use-prebuilt-repo)
 				PREBUILT_REPO_DIR=`readlink -e "$2"`
+				shift ;;
+			--ubuntu-version)
+				UBUNTU_VERSION="$2"
 				shift ;;
 			-b)
 				TARGET_BOARD="$2"
@@ -263,6 +267,8 @@ gen_artik_release
 if [ "$PREBUILT_REPO_DIR" != "" ]; then
 	cp -rf $PREBUILT_REPO_DIR/* $TARGET_DIR/debs
 fi
+
+cp -f ${E2E_PLUGIN_DIR}/ubuntu/${UBUNTU_VERSION}/${BUILD_ARCH}/*.deb $TARGET_DIR/debs
 
 start_local_server $TARGET_DIR/debs $PORT
 
