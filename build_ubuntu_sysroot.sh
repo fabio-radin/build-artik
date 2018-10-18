@@ -305,12 +305,10 @@ fi
 mkdir -p $TARGET_DIR/rootfs
 sudo tar zxf $TARGET_DIR/${UBUNTU_NAME}.tar.gz -C $TARGET_DIR/rootfs
 
-if [ "$TARGET_BOARD" != "artik310s" ]; then
-	dpkg_list=`sudo chroot ${TARGET_DIR}/rootfs /bin/bash -c "dpkg -l | grep libartik-sdk"`
-	dpkg_array=(${dpkg_list// / })
-	SDK_VERSION=${dpkg_array[2]}
-	echo "SDK_VERSION=${SDK_VERSION}" | sudo tee --append $TARGET_DIR/artik_sysroot_release
-fi
+dpkg_list=`sudo chroot ${TARGET_DIR}/rootfs /bin/bash -c "dpkg -l | grep libartik-sdk"`
+dpkg_array=(${dpkg_list// / })
+SDK_VERSION=${dpkg_array[2]}
+echo "SDK_VERSION=${SDK_VERSION}" | sudo tee --append $TARGET_DIR/artik_sysroot_release
 
 sudo mv $TARGET_DIR/artik_sysroot_release $TARGET_DIR/rootfs/
 sync
