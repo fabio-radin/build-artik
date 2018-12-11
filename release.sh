@@ -240,6 +240,13 @@ fi
 
 check_restrictive_pkg
 
+if ! $FULL_BUILD; then
+	if [ "${LOCAL_ROOTFS}" = "" ]; then
+		echo "Please specify local rootfs tarball through --local-rootfs"
+		exit 0
+	fi
+fi
+
 if [ "$BUILD_DATE" == "" ]; then
 	BUILD_DATE=`date +"%Y%m%d.%H%M%S"`
 fi
