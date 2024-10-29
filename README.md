@@ -42,7 +42,7 @@ You can download source codes using repo tool. To install the repo tool,
 ```
 mkdir artik710
 cd artik710
-repo init -u https://github.com/SamsungARTIK/manifest.git -m artik710_bsp.xml
+repo init -u https://github.com/fabio-radin/manifest.git -m artik710_bsp.xml
 repo sync
 ```
 
@@ -53,7 +53,7 @@ repo sync
 ```
 mkdir artik710s
 cd artik710s
-repo init -u https://github.com/SamsungARTIK/manifest.git -m artik710s_bsp.xml
+repo init -u https://github.com/fabio-radin/manifest.git -m artik710s_bsp.xml
 repo sync
 ```
 - Security Binaries for artik710s (Download from http://developer.artik.io/downloads/artik710s-security-package-20181030-000001/download)
@@ -67,7 +67,7 @@ repo sync
 ```
 mkdir artik530
 cd artik530
-repo init -u https://github.com/SamsungARTIK/manifest.git -m artik530_bsp.xml
+repo init -u https://github.com/fabio-radin/manifest.git -m artik530_bsp.xml
 repo sync
 ```
 
@@ -78,7 +78,7 @@ repo sync
 ```
 mkdir artik530s
 cd artik530s
-repo init -u https://github.com/SamsungARTIK/manifest.git -m artik530s_bsp.xml
+repo init -u https://github.com/fabio-radin/manifest.git -m artik530s_bsp.xml
 repo sync
 ```
 - Security Binaries for artik530s (Download from http://developer.artik.io/downloads/artik530s-security-package-20181030-000001/download)
@@ -92,7 +92,7 @@ repo sync
 ```
 mkdir artik533s
 cd artik533s
-repo init -u https://github.com/SamsungARTIK/manifest.git -m artik533s_bsp.xml
+repo init -u https://github.com/fabio-radin/manifest.git -m artik533s_bsp.xml
 repo sync
 ```
 - Security Binaries for artik530s 1G (artik533s) (Download from http://developer.artik.io/downloads/artik533s-security-package-20181030-013001/download)
@@ -219,7 +219,7 @@ Please refer https://developer.artik.io/documentation/updating-artik-image.html
 
 ### 5. Full build guide
 
-This will require long time to make a ubuntu rootfs. You'll require to install sbuild/live buils system. Please refer "Environment set up for ubuntu package build" and "Environment set up for ubuntu rootfs build" from the [ubuntu-build-service](https://github.com/SamsungARTIK/ubuntu-build-service).
+This will require long time to make a ubuntu rootfs. You'll require to install sbuild/live buils system. Please refer "Environment set up for ubuntu package build" and "Environment set up for ubuntu rootfs build" from the [ubuntu-build-service](https://github.com/fabio-radin/ubuntu-build-service).
 
 #### 5.1. Clone full source tree
 
@@ -228,7 +228,7 @@ This will require long time to make a ubuntu rootfs. You'll require to install s
 ```
 mkdir artik710_full
 cd artik710_full
-repo init -u https://github.com/SamsungARTIK/manifest.git -m artik710.xml
+repo init -u https://github.com/fabio-radin/manifest.git -m artik710.xml
 repo sync
 ```
 
@@ -237,7 +237,7 @@ repo sync
 ```
 mkdir artik710s_full
 cd artik710s_full
-repo init -u https://github.com/SamsungARTIK/manifest.git -m artik710s.xml
+repo init -u https://github.com/fabio-radin/manifest.git -m artik710s.xml
 repo sync
 ```
 
@@ -246,7 +246,7 @@ repo sync
 ```
 mkdir artik530_full
 cd artik530_full
-repo init -u https://github.com/SamsungARTIK/manifest.git -m artik530.xml
+repo init -u https://github.com/fabio-radin/manifest.git -m artik530.xml
 repo sync
 ```
 
@@ -255,7 +255,7 @@ repo sync
 ```
 mkdir artik530s_full
 cd artik530s_full
-repo init -u https://github.com/SamsungARTIK/manifest.git -m artik530s.xml
+repo init -u https://github.com/fabio-radin/manifest.git -m artik530s.xml
 repo sync
 ```
 
@@ -264,7 +264,7 @@ repo sync
 ```
 mkdir artik533s_full
 cd artik533s_full
-repo init -u https://github.com/SamsungARTIK/manifest.git -m artik533s.xml
+repo init -u https://github.com/fabio-radin/manifest.git -m artik533s.xml
 repo sync
 ```
 

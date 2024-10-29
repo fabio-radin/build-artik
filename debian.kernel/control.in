@@ -3,7 +3,7 @@ Section: kernel
 Priority: optional
 Maintainer: Chanho Park <chanho61.park@samsung.com>
 Build-Depends: bc, kmod, cpio, devicetree-compiler
-Homepage: https://github.com/SamsungARTIK/linux-artik.git
+Homepage: https://github.com/fabio-radin/linux-artik.git
 
 Package: linux-@ARTIK@-image
 Architecture: any
